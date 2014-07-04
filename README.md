@@ -2,13 +2,13 @@ oop4c
 =====
 A header only oop toolkit for C.
 
-##Description
+###Description
 Point 1: Before start... did you try C++?, why don't?. Continue if you have a coherent response, if not please analize your needs.
 
-With this header any C program can work with a sort of Object Oriented Programming using just one include.
-Structure based, all preprocesor macro implementation and without vtables (if you don't know what a vtable is, please read the point 1). If you really need vtables, may be you need C++.
+With this header a C program can work with a sort of Object Oriented Programming using just one include.
+This is a structure based, all preprocesor macro implementation and without vtables solution (if you don't know what a vtable is, please read the point 1). If you really need vtables, may be you need C++.
 
-#Example: class punto, class punto3d subclass punto:
+###Example: class punto, class punto3d subclass punto:
 punto.h:
 ```
  #include "ooSimple.h"
@@ -162,7 +162,7 @@ main.c
  }
 ```
 
-As alternative you can use a shorter form, simply declare the _ooClass macro, add a "D" in every function macro:
+###As alternative you can use a shorter form, simply declare the _ooClass macro, add a "D" in every function macro:
 
 punto.h:
 ``` 
@@ -202,3 +202,7 @@ punto3d.h
  ooClassEnd
 ```
 
+###References
+* [book] (http://www.cs.rit.edu/~ats/books/ooc.pdf)
+* [stackoverflow: Can you write object oriented code in C?] (http://stackoverflow.com/questions/415452/object-orientation-in-c)
+* [stackoverflow: Object-Orientation in C] (http://stackoverflow.com/questions/415452/object-orientation-in-c)
