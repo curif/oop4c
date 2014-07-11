@@ -1,4 +1,3 @@
-
 /*
  * ooSimple.h
  *
@@ -21,7 +20,6 @@
 
 //working with _ooClass when defined, used in postfixed "D" functions
 
-#define __namestruct(_name) EVALUATOR(oo,_name)
 #define __namenew(_name) EVALUATOR(_name, New)
 #define __namedestruct(_name) EVALUATOR(_name, Destructor)
 #define __namemethod(_name) EVALUATOR(_ooClass, _name)
@@ -37,12 +35,11 @@
 		int size; \
 		void (*destroy)(_class *this);
 
-#define ooClass(_class) __ooClass(__namestruct(_class), _class)
-#define ooClassH(_class, _base) __ooClassH(__namestruct(_class), _class, _base)
-
+#define ooClass(_class) __ooClass(_class, _class)
+#define ooClassH(_class, _base) __ooClassH(_class, _class, _base)
 //Working with the _ooClass definition (D as postfix in every function)
-#define ooClassD __ooClass(__namestruct(_ooClass), _ooClass)
-#define ooClassDH(_base) __ooClassH(__namestruct(_ooClass), _ooClass, _base)
+#define ooClassD __ooClass(_ooClass, _ooClass)
+#define ooClassDH(_base) __ooClassH(_ooClass, _ooClass, _base)
 
 #define ooClassEnd };
 
@@ -61,12 +58,12 @@
 
 #define ooNew(_class, _obj, _params...) \
 	(_class *)malloc(sizeof(_class));\
-	__ooInit(_class, _obj, __namedestruct(_class), __namenew(_class), _params);\
-	__namenew(_class)(_obj, ##_params);
+	if (_obj) { __ooInit(_class, _obj, __namedestruct(_class), __namenew(_class), _params);\
+	__namenew(_class)(_obj, ##_params);}
 #define ooNewD(_obj, _params...) \
 		(_ooClass *)malloc(sizeof(_ooClass));\
-		__ooInit(_ooClass, _obj, __namedestruct(_ooClass), __namenew(_ooClass), _params);\
-		__namenew(_ooClass)(_obj, ##_params);
+		if (_obj) {	__ooInit(_ooClass, _obj, __namedestruct(_ooClass), __namenew(_ooClass), _params);\
+		__namenew(_ooClass)(_obj, ##_params);}\
 
 //Declaraciones de constructor y destructor.
 #define ooCtor(_class, _params...) void __namenew(_class)(_class *this, ##_params) //declarar el constructor
