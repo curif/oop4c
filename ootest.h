@@ -36,8 +36,4 @@ void ooMethodDeclare(punto3d, setz, int pz);
 void ooMethodDeclare(punto3d, setxy, int px, int py);
 ooClassEnd
 
-ooClass(another)
-int x;
-ooClassEnd
-
 #endif /* OOTEST_H_ */
