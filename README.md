@@ -206,3 +206,4 @@ punto3d.h
 * [book] (http://www.cs.rit.edu/~ats/books/ooc.pdf)
 * [stackoverflow: Can you write object oriented code in C?] (http://stackoverflow.com/questions/415452/object-orientation-in-c)
 * [stackoverflow: Object-Orientation in C] (http://stackoverflow.com/questions/415452/object-orientation-in-c)
+* [Object Oriented Programming in C (Laurent Deniau)] (http://ldeniau.web.cern.ch/ldeniau/html/oopc.html)
