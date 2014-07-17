@@ -106,6 +106,12 @@ int main() {
 		printf("ERROR\n");
 	}
 
+	printf("Type of p=%s\n", ooType(p));
+	printf("Type of pu=%s\n", ooType(pu));
+	if (ooTypeOf(pu, punto)) {
+		printf("Correct, pu is punto\n");
+	}
+	
 	ooDeleteFree(p);
 	ooDelete(&p2);
 	ooDelete(&p3);
