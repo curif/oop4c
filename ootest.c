@@ -5,23 +5,31 @@
  *      Author: fcuri
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "ootest.h"
 
-int ooMethodD(suma) {
+int ooMethodD(sum) {
 	return this->x + this->y;
 }
 ooCtorD(int x, int y) {
+
+	ooTypeableD();
+
 	this->x = x;
 	this->y = y;
-	ooMethodSetD(suma);
+	ooMethodSetD(sum);
+
+	return;
 }
 ooDtorD() {
-	//free(this);
+	return;
 }
 
-int ooMethodOverride(punto3d, punto, suma) {
+int ooMethodOverride(punto3d, punto, sum) {
 	ooThisDeclare(punto3d);
-	//return this->z + ooBase()->suma(ooBase()); //not possible, recursion.
+	//return this->z + ooBase()->sum(ooBase()); //not possible, recursion.
 	return this->z + base->x + base->y;
 }
 int ooMethod(punto3d, getx) {
@@ -45,13 +53,33 @@ void ooMethod(punto3d, setz, int z) {
 void ooMethod(punto3d, setxy, int x, int y) {
 	ooBase()->y = y ;
 }
+//Clone a punto3d object.
+punto3d *ooMethod(punto3d, clone) {
+	punto3d *x = (punto3d *)malloc(ooSize(this));
+	memcpy(x,this,ooSize(this));
+	return x;
+}
+//Copy without Z
+void ooMethod(punto3d, copyWithoutZ, punto3d *to) {
+	to->base.x = this->base.x;
+	to->base.y = this->base.y;
+	to->z = 0;
+	return;
+}
+int ooMethod(punto3d, compare, punto3d *with) {
+	return this->base.x == with->base.x && this->base.y == with->base.y && this->z == with->z;
+}
 ooCtor(punto3d, int x, int y, int z) {
-
-	//inicializa el parent (punto defined in _ooClass)
+	//parent init.
 	ooInitD(ooBase(), x, y);
 
+	//implementations:
+	ooClonable(punto3d, clone);
+	ooTypeable(punto3d);
+	ooCopiable(punto3d, copyWithoutZ);
+  ooComparable(punto3d, compare);
+
 	//methods
-	//ooMethodSet(punto3d, suma);
 	ooMethodSet(punto3d, getx);
 	ooMethodSet(punto3d, gety);
 	ooMethodSet(punto3d, getz);
@@ -59,8 +87,8 @@ ooCtor(punto3d, int x, int y, int z) {
 	ooMethodSet(punto3d, sety);
 	ooMethodSet(punto3d, setz);
 
-	//Override parent method with is own.
-	ooMethodSetOverride(punto3d, suma);
+	//Override parent method with its own.
+	ooMethodSetOverride(punto3d, sum);
 
 	//initialization
 	this->z = z;
@@ -68,52 +96,101 @@ ooCtor(punto3d, int x, int y, int z) {
 	return;
 }
 ooDtor(punto3d) {
-	//ooDelete(ooBase());
-	//free(this);
+	return;
 }
 
 int main() {
 	punto3d *p;
-	punto3d p2;
-	punto3d p3;
+	punto3d pCopied;
+	punto3d *pCloned;
 	punto *pu;
-	
+
+	printf("----------------------------------------------\n");
+	printf("oop4c test example\n");
+	printf("----------------------------------------------\n");
+
 	p = ooNew(punto3d, p, 10, 10, 30);
-	ooInit(punto3d, &p2, 100, 100, 300);
-
-	printf("p: %i+%i+%i = suma:%i\n", p->base.x, p->base.y, p->z, p->base.suma((punto*)p));
-
-	printf("p2: %i+%i+%i = suma:%i\n", p2.base.x, p2.base.y, p2.z, p2.base.suma((punto*)&p2));
+	printf("p: %i+%i+%i = sum:%i\n", p->base.x, p->base.y, p->z, p->base.sum((punto*)p));
 
 	p->setx(p,20);
 	p->sety(p,50);
 	p->setz(p,100);
-	printf("%i+%i+%i = suma:%i\n", p->getx(p), p->gety(p), p->getz(p), p->base.suma((punto*)p));
+	printf("%i+%i+%i = sum:%i\n", p->getx(p), p->gety(p), p->getz(p), p->base.sum((punto*)p));
 
-	p2.setx(&p2,200);
-	p2.sety(&p2,500);
-	p2.setz(&p2,1000);
-	printf("p2: %i+%i+%i = suma:%i\n", p2.getx(&p2), p2.gety(&p2), p2.getz(&p2), p2.base.suma((punto*)&p2));
+	//Clone p
+	if (!ooIsClonable(p)) {
+		printf("ERROR, p must be clonable !\n");
+		return EXIT_FAILURE;
+	}
+	pCloned = p->clone(p);
+	if (!pCloned) {
+		printf("ERROR clone");
+		return EXIT_FAILURE;
+	}
+	printf("OK, pCloned\n");
 
-	ooClone(&p3, p);
-	p2.setx(&p3,250);
-	printf("p3: %i+%i+%i = suma:%i\n", p3.getx(&p3), p3.gety(&p3), p3.getz(&p3), p3.base.suma((punto*)&p3));
+	pCloned->setz(pCloned,1000);
+	printf("cloned p: %i+%i+%i = sum:%i\n", pCloned->getx(pCloned), pCloned->gety(pCloned),
+			pCloned->getz(pCloned), pCloned->base.sum((punto*)pCloned));
 
-	//polimorfismo, si bien pu es de tipo punto, en realidad es punto3d y su suma debe sumar x,y,z
-	pu = (punto*)p;
-	printf("pu: %i+%i = suma:%i\n", pu->x, pu->y, pu->suma(pu));
-	if (pu->suma(pu) != 170) {
-		printf("ERROR\n");
+	// copy the cloned object over pCopied object.
+	if (ooSize(pCloned) != sizeof(punto3d)) {
+		printf("ERROR sizeof punto3d\n");
+		return EXIT_FAILURE;
 	}
 
+	ooInit(punto3d, &pCopied, 0,0,0);
+	pCloned->copy(pCloned, &pCopied);
+	printf("OK; pCopied\n");
+	printf("pCopied: %i+%i+%i = sum:%i\n", pCopied.getx(&pCopied), pCopied.gety(&pCopied), pCopied.getz(&pCopied), pCopied.base.sum((punto*)&pCopied));
+
+	//Compare
+	if (!ooIsComparable(p)) {
+		printf("ERROR p must be comparable..\n");
+		return EXIT_FAILURE;
+	}
+	if (p->compare(p, pCloned)) {
+		printf("ERROR p and pCloned must not be equals.\n");
+		return EXIT_FAILURE;
+	}
+	else {
+		printf("OK p and pCloned are equals\n");
+	}
+
+	//Polymorphism, cast a punto3d object as class punto
+	pu = (punto*)p;
+	printf("pu: %i+%i = sum:%i\n", pu->x, pu->y, pu->sum(pu));
+	if (pu->sum(pu) != 170) {
+		printf("sum ERROR \n");
+		return EXIT_FAILURE;
+	}
+	else {
+		printf("OK sum\n");
+	}
+
+	//type
+	if (!ooIsTypeable(p)) {
+		printf("ERROR p must be not typeable! \n");
+		return EXIT_FAILURE;
+	}
 	printf("Type of p=%s\n", ooType(p));
 	printf("Type of pu=%s\n", ooType(pu));
-	if (ooTypeOf(pu, punto)) {
-		printf("Correct, pu is punto\n");
+	if (!ooTypeOf(pu, punto)) {
+		printf("ERROR pu must by a punto instance.\n");
+		return EXIT_FAILURE;
 	}
-	
-	ooDeleteFree(p);
-	ooDelete(&p2);
-	ooDelete(&p3);
+	if (!ooTypeOf(p, punto3d)) {
+		printf("ERROR p must by a punto3d instance.\n");
+		return EXIT_FAILURE;
+	}
+	printf("OK typeOf\n");
 
+	//Destruction
+	ooDeleteFree(p);
+	ooDeleteFree(pCloned);
+	ooDelete(&pCopied);
+
+	printf("Objects destroyed\n");
+
+	return EXIT_SUCCESS;
 }
