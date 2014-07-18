@@ -61,7 +61,7 @@ punto3d.h
 
 punto3d.c
 ```
-	#include "punto3d.h"
+ #include "punto3d.h"
   
  //------------------------------
  //method sum in subclass punto3d overrides method sum in parent class punto
@@ -143,11 +143,6 @@ main.c
    p2.setz(&p2,1000);
    printf("p2: %i+%i+%i = sum:%i\n", p2.getx(&p2), p2.gety(&p2), p2.getz(&p2), p2.base.sum((punto*)&p2));
   
-   //Clone a object
- 	 ooClone(&p3, p);
-   p2.setx(&p3,250);
-   printf("p3: %i+%i+%i = sum:%i\n", p3.getx(&p3), p3.gety(&p3), p3.getz(&p3), p3.base.sum((punto*)&p3)); 
-
    //Polymorphism, cast a punto3d object as class punto
    pu = (punto*)p;
    printf("pu: %i+%i = sum:%i\n", pu->x, pu->y, pu->sum(pu));
@@ -201,7 +196,15 @@ punto3d.h
 
  ooClassEnd
 ```
+####Basic method implementation
 
+ * Copyable: Make an object's copy
+ * Typeable: Ask and compare the object type 
+ * Clonable: To make an object's duplicate 
+ * Comparable: To compare two objects instance of the same class.
+ 
+Check ootest.c and ootest.h for more information. 
+ 
 ###References
 * [book] (http://www.cs.rit.edu/~ats/books/ooc.pdf)
 * [stackoverflow: Can you write object oriented code in C?] (http://stackoverflow.com/questions/415452/object-orientation-in-c)
