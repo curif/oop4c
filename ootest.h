@@ -2,14 +2,12 @@
  * ootest.h
  *
  *  Created on: Jul 1, 2014
- *      Author: fcuri
+ *      Author: curif
  */
 
 #ifndef OOTEST_H_
 #define OOTEST_H_
 
-#include "config.h"
-#include "rutinas.h"
 #include "ooSimple.h"
 
 #undef _ooClass
@@ -17,16 +15,32 @@
 
 //punto definition
 ooClassD
-char st[1024];
+
+//implements...
+ooImpTypeableD();
+
+//properties
 int x;
 int y;
-int ooMethodDeclareD(suma);
+
+//methods
+int ooMethodDeclareD(sum);
+
 ooClassEnd
 
+//punto3d definition, subclass of punto
 ooClassH(punto3d, punto)
-//propiedades
+
+//implements....
+ooImpClonable(punto3d);
+ooImpTypeable(punto3d);
+ooImpCopiable(punto3d);
+ooImpComparable(punto3d);
+
+//properties
 int z;
-//methodos
+
+//methods
 int ooMethodDeclare(punto3d, getx);
 int ooMethodDeclare(punto3d, gety);
 int ooMethodDeclare(punto3d, getz);
@@ -34,6 +48,9 @@ void ooMethodDeclare(punto3d, setx, int px);
 void ooMethodDeclare(punto3d, sety, int py);
 void ooMethodDeclare(punto3d, setz, int pz);
 void ooMethodDeclare(punto3d, setxy, int px, int py);
+
 ooClassEnd
+
+
 
 #endif /* OOTEST_H_ */
