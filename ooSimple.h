@@ -113,7 +113,12 @@
 
 //-----------
 //Implements methods and properties
-//Clonable, Typeable, Comparable and Copyable
+//Clonable, Typeable, Comparable, Copyable and Listable.
+//Clonable: object can make copies from itself using the clone method.
+//Copiable: object con copy its properties over other object of same class (copy method)
+//Comparable: two objects of same class can compare (compare method)
+//Typeable: a program can know the class of a object.
+//Listable: a object can contain a list of other objects of same class.
 //Use the ooImpXXX macros during class declaration (ooImpXXXD as well)
 //Use the ooXXXX macros during constructor execution.
 
@@ -122,11 +127,13 @@
 #define __ooCapTypeable (1<<1)
 #define __ooCapComparable (1<<2)
 #define __ooCapCopyable (1<<3)
+#define __ooCapListable (1<<4)
 
 #define ooIsClonable(_obj) (((_obj)->_cap & __ooCapClonable) && (_obj)->clone)
 #define ooIsTypeable(_obj) ((_obj)->_cap & __ooCapTypeable)
 #define ooIsComparable(_obj) (((_obj)->_cap & __ooCapComparable) && (_obj)->compare)
 #define ooIsCopyable(_obj) (((_obj)->_cap & __ooCapCopyable) && (_obj)->copy)
+#define ooIsListable(_obj) (((_obj)->_cap & __ooCapListable))
 
 //implements comparable, add method compare (must return 1 if the objects are equals)
 #define ooImpComparable(_class) int ooMethodDeclare(_class, compare, _class *compareto)
@@ -159,5 +166,39 @@
 #define ooImpCopiableD() ooImpCopiable(_ooClass)
 #define ooCopiable(_class, _method) this->_cap |= __ooCapCopyable; this->copy = _ooMethodName(_class, _method)
 #define ooCopiableD(_method) ooCopiable(_ooClass, _method)
+
+//lists
+#define ooImpListable(_class) _class *_prev, *_next
+#define ooImpListableD() ooImpListable(_ooClass)
+#define ooListable(_class) this->_cap |= __ooCapListable
+#define ooListableD() ooListable(_ooClass)
+#define ooListAdd(_objWhere, _objToAdd) \
+		if (!_objWhere) {\
+			_objWhere =_objToAdd;\
+		}\
+		else {\
+			if (_objWhere->_next) {\
+				(_objWhere)->_next->_prev = _objToAdd;\
+			} \
+			(_objToAdd)->_next = (_objWhere)->_next;\
+			(_objToAdd)->_prev = (_objWhere);\
+			(_objWhere)->_next = _objToAdd;\
+		}
+#define ooListRemove(_obj) \
+	if ((_obj)->_next) { \
+		(_obj)->_next->_prev = (_obj)->_prev;\
+	}\
+	if ((_obj)->_prev) { \
+		(_obj)->_prev->_next = (_obj)->_next;\
+	}\
+	(_obj)->_prev = (_obj)->_next = NULL;
+#define ooListIsFirst(_obj) ((_obj)->_prev == NULL)
+#define ooListIsLast(_obj) ((_obj)->_next == NULL)
+#define ooListIsEmpty(_obj) ((_obj) && (_obj)->_next == NULL && (_obj)->_prev == NULL)
+#define ooListNext(_obj) ((_obj)->_next)
+#define ooListPrev(_obj) ((_obj)->_prev)
+#define ooListForEach(_obj, _iter) for (_iter = (_obj); _iter; _iter = (_iter)->_next)
+#define ooListFirst(_obj, _iter) _iter = (_obj); while (!ooListIsFirst(_iter)) {_iter = (_iter)->_prev;}
+#define ooListLast(_obj, _iter) _iter = (_obj); while (!ooListIsLast(_iter)) {_iter = (_iter)->_next;}
 
 #endif /* OOSIMPLE_H_ */
