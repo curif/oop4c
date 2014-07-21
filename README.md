@@ -197,11 +197,13 @@ punto3d.h
  ooClassEnd
 ```
 ####Basic method implementation
+To add basic functionality to a class:
 
- * Copyable: Make an object's copy
- * Typeable: Ask and compare the object type 
- * Clonable: To make an object's duplicate 
+ * Copyable: Make the class copiable
+ * Typeable: Convert a class in comparable by his type.
+ * Clonable: To make an object's duplicate.
  * Comparable: To compare two objects instance of the same class.
+ * Listable: Add double list functionality to a class.
  
 Check ootest.c and ootest.h for more information. 
  
