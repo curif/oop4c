@@ -78,6 +78,7 @@ ooCtor(punto3d, int x, int y, int z) {
 	ooTypeable(punto3d);
 	ooCopiable(punto3d, copyWithoutZ);
   ooComparable(punto3d, compare);
+  ooListable(punto3d);
 
 	//methods
 	ooMethodSet(punto3d, getx);
@@ -184,6 +185,86 @@ int main() {
 		return EXIT_FAILURE;
 	}
 	printf("OK typeOf\n");
+
+	//list test ---------------------------
+	punto3d *l, *l2;
+	punto3d *iter;
+	int f, count;
+	l = ooNew(punto3d, l, 1, 0, 0);
+	if (!ooIsListable(l)) {
+		printf("ERROR l must by listable.\n");
+		return EXIT_FAILURE;
+	}
+	//add 10 obj to list.
+	count=2;
+	for (f=0; f<10; f++) {
+		l2 = ooNew(punto3d, l2, count, 0, 0);
+		ooListAdd(l, l2);
+		count++;
+	}
+	printf("for each...\n");
+	ooListForEach(l, iter) {
+		printf("%i in list %s %s \n", iter->getx(iter), ooListIsFirst(iter)? "FIRST":"", ooListIsLast(iter)? "LAST":"");
+		if (!ooListIsFirst(iter)) {
+			printf("   prev:%i\n", iter->_prev->getx(iter->_prev));
+		}
+		if (!ooListIsLast(iter)) {
+			printf("   next:%i\n", iter->_next->getx(iter->_next));
+		}
+	}
+	printf("Search first\n");
+	ooListFirst(l, iter);
+	if (!iter) {
+		printf("ERROR ooListFirst\n");
+		return EXIT_FAILURE;
+	}
+	printf("%i first found\n", iter->getx(iter));
+
+	printf("Search last\n");
+	ooListLast(l, iter);
+	if (!iter) {
+		printf("ERROR ooListLast\n");
+		return EXIT_FAILURE;
+	}
+	printf("%i last found\n", iter->getx(iter));
+
+	printf("Remove 7\n");
+	ooListForEach(l, iter) {
+		if (iter->getx(iter) == 7) {
+			printf("7 found, remove\n");
+			ooListRemove(iter);
+			ooDeleteFree(iter);
+			break;
+		}
+	}
+	ooListForEach(l, iter) {
+		printf("%i in list \n", iter->getx(iter));
+	}
+	printf("Remove last\n");
+	ooListLast(l, iter);
+	ooListRemove(iter);
+	ooDeleteFree(iter);
+	ooListForEach(l, iter) {
+		printf("%i in list \n", iter->getx(iter));
+	}
+	printf("Remove first\n");
+	ooListFirst(l, iter);
+	l = ooListNext(iter); //save the new first.
+	ooListRemove(iter);
+	ooDeleteFree(iter);
+	ooListForEach(l, iter) {
+		printf("%i in list \n", iter->getx(iter));
+	}
+	printf("Remove and destroy all\n");
+	while (!ooListIsEmpty(l)) {
+		iter = l;
+		l = ooListNext(iter);
+		ooListRemove(iter);
+		printf("%i removed\n", iter->getx(iter));
+		ooDeleteFree(iter);
+	}
+	printf("remove first: %i \n", l->getx(l));
+	ooDeleteFree(l);
 
 	//Destruction
 	ooDeleteFree(p);
