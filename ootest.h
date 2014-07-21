@@ -36,6 +36,7 @@ ooImpClonable(punto3d);
 ooImpTypeable(punto3d);
 ooImpCopiable(punto3d);
 ooImpComparable(punto3d);
+ooImpListable(punto3d);
 
 //properties
 int z;
