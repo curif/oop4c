@@ -172,6 +172,18 @@
 #define ooImpListableD() ooImpListable(_ooClass)
 #define ooListable(_class) this->_cap |= __ooCapListable
 #define ooListableD() ooListable(_ooClass)
+#define ooListPush(_objFirst, _objToAdd) \
+	if (!_objFirst) {\
+			_objFirst =_objToAdd;\
+		}\
+		else {\
+			_objToAdd->_next = _objFirst;\
+			_objFirst->_prev = _objToAdd;\
+			_objFirst =_objToAdd;\
+		}
+#define ooListPop(_objFirst, _objResult) \
+		_objResult = _objFirst; _objFirst = _objFirst->_next; ooListRemove(_objResult)
+
 #define ooListAdd(_objWhere, _objToAdd) \
 		if (!_objWhere) {\
 			_objWhere =_objToAdd;\
@@ -190,8 +202,7 @@
 	}\
 	if ((_obj)->_prev) { \
 		(_obj)->_prev->_next = (_obj)->_next;\
-	}\
-	(_obj)->_prev = (_obj)->_next = NULL;
+	}
 #define ooListIsFirst(_obj) ((_obj)->_prev == NULL)
 #define ooListIsLast(_obj) ((_obj)->_next == NULL)
 #define ooListIsEmpty(_obj) ((_obj) && (_obj)->_next == NULL && (_obj)->_prev == NULL)
