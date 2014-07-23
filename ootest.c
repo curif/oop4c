@@ -189,18 +189,12 @@ int main() {
 	//list test ---------------------------
 	punto3d *l, *l2;
 	punto3d *iter;
-	int f, count;
-	l = ooNew(punto3d, l, 1, 0, 0);
-	if (!ooIsListable(l)) {
-		printf("ERROR l must by listable.\n");
-		return EXIT_FAILURE;
-	}
+	int f;
+	l = NULL;
 	//add 10 obj to list.
-	count=2;
 	for (f=0; f<10; f++) {
-		l2 = ooNew(punto3d, l2, count, 0, 0);
-		ooListAdd(l, l2);
-		count++;
+		l2 = ooNew(punto3d, l2, f+1, 0, 0);
+		ooListPush(l, l2);
 	}
 	printf("for each...\n");
 	ooListForEach(l, iter) {
@@ -247,19 +241,32 @@ int main() {
 	ooListForEach(l, iter) {
 		printf("%i in list \n", iter->getx(iter));
 	}
+
 	printf("Remove first\n");
 	ooListFirst(l, iter);
+	if (!iter) {
+		printf("ERROR ooListFirst\n");
+		return EXIT_FAILURE;
+	}
+	printf("%i is first \n", iter->getx(iter));
 	l = ooListNext(iter); //save the new first.
 	ooListRemove(iter);
+	printf("Destroy first\n");
 	ooDeleteFree(iter);
+	ooListForEach(l, iter) {
+		printf("%i in list \n", iter->getx(iter));
+	}
+
+	printf("Pop\n");
+	ooListPop(l, iter);
+	printf("%i poped\n", iter->getx(iter));
+	printf("List after Pop\n");
 	ooListForEach(l, iter) {
 		printf("%i in list \n", iter->getx(iter));
 	}
 	printf("Remove and destroy all\n");
 	while (!ooListIsEmpty(l)) {
-		iter = l;
-		l = ooListNext(iter);
-		ooListRemove(iter);
+		ooListPop(l, iter);
 		printf("%i removed\n", iter->getx(iter));
 		ooDeleteFree(iter);
 	}
