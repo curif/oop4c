@@ -10,16 +10,35 @@
 
 #include "ootest.h"
 
+ooPropertyGetD(int, x) {
+	return this->x;
+}
+ooPropertySetD(int, x) {
+	this->x = x;
+	return;
+}
+ooPropertyGetD(int, y) {
+	return this->y;
+}
+ooPropertySetD(int, y) {
+	this->y = y;
+	return ;
+}
 int ooMethodD(sum) {
 	return this->x + this->y;
 }
+
 ooCtorD(int x, int y) {
 
 	ooTypeableD();
 
 	this->x = x;
 	this->y = y;
-	ooMethodSetD(sum);
+	ooMethodInitD(sum);
+
+	//initialize setters & getters
+	ooPropertyInitD(x);
+	ooPropertyInitD(y);
 
 	return;
 }
@@ -32,33 +51,36 @@ int ooMethodOverride(punto3d, punto, sum) {
 	//return this->z + ooBase()->sum(ooBase()); //not possible, recursion.
 	return this->z + base->x + base->y;
 }
-int ooMethod(punto3d, getx) {
-	return ooBase()->x ;
+
+ooPropertyGet(punto3d, int, x) {
+	return ooBase()->Getx(ooBase());
 }
-int ooMethod(punto3d, gety) {
-	return ooBase()->y ;
+ooPropertySet(punto3d, int, x) {
+	ooBase()->Setx(ooBase(), x);
+	return ;
 }
-int ooMethod(punto3d, getz) {
-	return this->z ;
+ooPropertyGet(punto3d, int, y) {
+	return ooBase()->Gety(ooBase());
 }
-void ooMethod(punto3d, setx, int x) {
-	ooBase()->x = x ;
+ooPropertySet(punto3d, int, y) {
+	ooBase()->Sety(ooBase(), y);
+	return ;
 }
-void ooMethod(punto3d, sety, int y) {
-	ooBase()->y = y ;
+ooPropertyGet(punto3d, int, z) {
+	return this->z;
 }
-void ooMethod(punto3d, setz, int z) {
-	this->z = z ;
+ooPropertySet(punto3d, int, z) {
+	this->z = z;
+	return;
 }
-void ooMethod(punto3d, setxy, int x, int y) {
-	ooBase()->y = y ;
-}
+
 //Clone a punto3d object.
 punto3d *ooMethod(punto3d, clone) {
 	punto3d *x = (punto3d *)malloc(ooSize(this));
 	memcpy(x,this,ooSize(this));
 	return x;
 }
+
 //Copy without Z
 void ooMethod(punto3d, copyWithoutZ, punto3d *to) {
 	to->base.x = this->base.x;
@@ -80,19 +102,16 @@ ooCtor(punto3d, int x, int y, int z) {
   ooComparable(punto3d, compare);
   ooListable(punto3d);
 
-	//methods
-	ooMethodSet(punto3d, getx);
-	ooMethodSet(punto3d, gety);
-	ooMethodSet(punto3d, getz);
-	ooMethodSet(punto3d, setx);
-	ooMethodSet(punto3d, sety);
-	ooMethodSet(punto3d, setz);
+	//Initialize Properties
+  ooPropertyInit(punto3d, x);
+  ooPropertyInit(punto3d, y);
+  ooPropertyInit(punto3d, z);
 
 	//Override parent method with its own.
-	ooMethodSetOverride(punto3d, sum);
+	ooMethodInitOverride(punto3d, sum);
 
 	//initialization
-	this->z = z;
+	this->Setz(this, z);
 
 	return;
 }
@@ -113,10 +132,10 @@ int main() {
 	p = ooNew(punto3d, p, 10, 10, 30);
 	printf("p: %i+%i+%i = sum:%i\n", p->base.x, p->base.y, p->z, p->base.sum((punto*)p));
 
-	p->setx(p,20);
-	p->sety(p,50);
-	p->setz(p,100);
-	printf("%i+%i+%i = sum:%i\n", p->getx(p), p->gety(p), p->getz(p), p->base.sum((punto*)p));
+	p->Setx(p,20);
+	p->Sety(p,50);
+	p->Setz(p,100);
+	printf("%i+%i+%i = sum:%i\n", p->Getx(p), p->Gety(p), p->Getz(p), p->base.sum((punto*)p));
 
 	//Clone p
 	if (!ooIsClonable(p)) {
@@ -130,9 +149,9 @@ int main() {
 	}
 	printf("OK, pCloned\n");
 
-	pCloned->setz(pCloned,1000);
-	printf("cloned p: %i+%i+%i = sum:%i\n", pCloned->getx(pCloned), pCloned->gety(pCloned),
-			pCloned->getz(pCloned), pCloned->base.sum((punto*)pCloned));
+	pCloned->Setz(pCloned,1000);
+	printf("cloned p: %i+%i+%i = sum:%i\n", pCloned->Getx(pCloned), pCloned->Gety(pCloned),
+			pCloned->Getz(pCloned), pCloned->base.sum((punto*)pCloned));
 
 	// copy the cloned object over pCopied object.
 	if (ooSize(pCloned) != sizeof(punto3d)) {
@@ -143,7 +162,7 @@ int main() {
 	ooInit(punto3d, &pCopied, 0,0,0);
 	pCloned->copy(pCloned, &pCopied);
 	printf("OK; pCopied\n");
-	printf("pCopied: %i+%i+%i = sum:%i\n", pCopied.getx(&pCopied), pCopied.gety(&pCopied), pCopied.getz(&pCopied), pCopied.base.sum((punto*)&pCopied));
+	printf("pCopied: %i+%i+%i = sum:%i\n", pCopied.Getx(&pCopied), pCopied.Gety(&pCopied), pCopied.Getz(&pCopied), pCopied.base.sum((punto*)&pCopied));
 
 	//Compare
 	if (!ooIsComparable(p)) {
@@ -198,12 +217,12 @@ int main() {
 	}
 	printf("for each...\n");
 	ooListForEach(l, iter) {
-		printf("%i in list %s %s \n", iter->getx(iter), ooListIsFirst(iter)? "FIRST":"", ooListIsLast(iter)? "LAST":"");
+		printf("%i in list %s %s \n", iter->Getx(iter), ooListIsFirst(iter)? "FIRST":"", ooListIsLast(iter)? "LAST":"");
 		if (!ooListIsFirst(iter)) {
-			printf("   prev:%i\n", iter->_prev->getx(iter->_prev));
+			printf("   prev:%i\n", iter->_prev->Getx(iter->_prev));
 		}
 		if (!ooListIsLast(iter)) {
-			printf("   next:%i\n", iter->_next->getx(iter->_next));
+			printf("   next:%i\n", iter->_next->Getx(iter->_next));
 		}
 	}
 	printf("Search first\n");
@@ -212,7 +231,7 @@ int main() {
 		printf("ERROR ooListFirst\n");
 		return EXIT_FAILURE;
 	}
-	printf("%i first found\n", iter->getx(iter));
+	printf("%i first found\n", iter->Getx(iter));
 
 	printf("Search last\n");
 	ooListLast(l, iter);
@@ -220,11 +239,11 @@ int main() {
 		printf("ERROR ooListLast\n");
 		return EXIT_FAILURE;
 	}
-	printf("%i last found\n", iter->getx(iter));
+	printf("%i last found\n", iter->Getx(iter));
 
 	printf("Remove 7\n");
 	ooListForEach(l, iter) {
-		if (iter->getx(iter) == 7) {
+		if (iter->Getx(iter) == 7) {
 			printf("7 found, remove\n");
 			ooListRemove(iter);
 			ooDeleteFree(iter);
@@ -232,14 +251,14 @@ int main() {
 		}
 	}
 	ooListForEach(l, iter) {
-		printf("%i in list \n", iter->getx(iter));
+		printf("%i in list \n", iter->Getx(iter));
 	}
 	printf("Remove last\n");
 	ooListLast(l, iter);
 	ooListRemove(iter);
 	ooDeleteFree(iter);
 	ooListForEach(l, iter) {
-		printf("%i in list \n", iter->getx(iter));
+		printf("%i in list \n", iter->Getx(iter));
 	}
 
 	printf("Remove first\n");
@@ -248,29 +267,29 @@ int main() {
 		printf("ERROR ooListFirst\n");
 		return EXIT_FAILURE;
 	}
-	printf("%i is first \n", iter->getx(iter));
+	printf("%i is first \n", iter->Getx(iter));
 	l = ooListNext(iter); //save the new first.
 	ooListRemove(iter);
 	printf("Destroy first\n");
 	ooDeleteFree(iter);
 	ooListForEach(l, iter) {
-		printf("%i in list \n", iter->getx(iter));
+		printf("%i in list \n", iter->Getx(iter));
 	}
 
 	printf("Pop\n");
 	ooListPop(l, iter);
-	printf("%i poped\n", iter->getx(iter));
+	printf("%i poped\n", iter->Getx(iter));
 	printf("List after Pop\n");
 	ooListForEach(l, iter) {
-		printf("%i in list \n", iter->getx(iter));
+		printf("%i in list \n", iter->Getx(iter));
 	}
 	printf("Remove and destroy all\n");
 	while (!ooListIsEmpty(l)) {
 		ooListPop(l, iter);
-		printf("%i removed\n", iter->getx(iter));
+		printf("%i removed\n", iter->Getx(iter));
 		ooDeleteFree(iter);
 	}
-	printf("remove first: %i \n", l->getx(l));
+	printf("remove first: %i \n", l->Getx(l));
 	ooDeleteFree(l);
 
 	//Destruction
