@@ -19,9 +19,11 @@ ooClassD
 //implements...
 ooImpTypeableD();
 
-//properties
+//properties (define Get & Set - puntoGetx, puntoSetx
 int x;
 int y;
+ooPropertyDeclareD(int, x);
+ooPropertyDeclareD(int, y);
 
 //methods
 int ooMethodDeclareD(sum);
@@ -40,18 +42,11 @@ ooImpListable(punto3d);
 
 //properties
 int z;
-
-//methods
-int ooMethodDeclare(punto3d, getx);
-int ooMethodDeclare(punto3d, gety);
-int ooMethodDeclare(punto3d, getz);
-void ooMethodDeclare(punto3d, setx, int px);
-void ooMethodDeclare(punto3d, sety, int py);
-void ooMethodDeclare(punto3d, setz, int pz);
-void ooMethodDeclare(punto3d, setxy, int px, int py);
+//getters & setters
+ooPropertyDeclare(punto3d, int, x);
+ooPropertyDeclare(punto3d, int, y);
+ooPropertyDeclare(punto3d, int, z);
 
 ooClassEnd
-
-
 
 #endif /* OOTEST_H_ */
