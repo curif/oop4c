@@ -12,6 +12,7 @@
 #define OOSIMPLE_H_
 
 #include <string.h> //memset, strcmp, memcpy
+#include <stdlib.h> //malloc, free
 
 //http://stackoverflow.com/questions/1489932/c-preprocessor-and-concatenation
 //#define REFERENCE(x) x
@@ -27,7 +28,6 @@
 //Base object
 #define __ooObjectBase(_class) unsigned int _cap; \
 	void (*destroy)(_class *this);
-
 
 #define __ooClass(_namestruct, _class) typedef struct _namestruct _class; \
 	struct _namestruct {\
@@ -80,17 +80,17 @@
 
 //methods
 #define ooMethodDeclare(_class, _name, _params...) (*_name)(_class *this,##_params) //declare a method in class definition
-#define ooMethodSet(_class, _name) this->_name = &_ooMethodName(_class, _name) //assign a method (during constructor execution)
+#define ooMethodInit(_class, _name) this->_name = &_ooMethodName(_class, _name) //assign a method (during constructor execution)
 #define ooMethod(_class, _name, _params...) _ooMethodName(_class, _name)(_class *this, ##_params) //declare a method
 
 #define ooMethodDeclareD(_name, _params...) (*_name)(_ooClass *this, ##_params)
-#define ooMethodSetD(_name) this->_name = &_ooMethodNameD(_name)
+#define ooMethodInitD(_name) this->_name = &_ooMethodNameD(_name)
 #define ooMethodD(_name, _params...) _ooMethodNameD(_name)(_ooClass *this, ##_params)
 
 //To change parent's methods
-#define ooMethodSetOverride(_class, _name) this->base._name = &_ooMethodName(_class, _name) //override parent's method during constructor
+#define ooMethodInitOverride(_class, _name) this->base._name = &_ooMethodName(_class, _name) //override parent's method during constructor
 #define ooMethodOverride(_class, _classBase, _name, _params...) _ooMethodName(_class, _name)(_classBase *base, ##_params) //declare an overrided method
-#define ooMethodSetOverrideD(_name) this->base._name = &_ooMethodNameD(_name)
+#define ooMethodInitOverrideD(_name) this->base._name = &_ooMethodNameD(_name)
 #define ooMethodOverrideD(_classBase, _name, _params...) _ooMethodNameD(_name)(_classBase *base, ##_params)
 
 //declare 'this' in overrided method.
@@ -110,6 +110,30 @@
 //Destruccion
 #define ooDelete(_obj) if ((_obj) && (_obj)->destroy) { (_obj)->destroy((_obj)); } //object destruction call
 #define ooDeleteFree(_obj) ooDelete(_obj); free(_obj); _obj=NULL //object destruction call and free mem
+
+//setters and getters properties -----------------------------------
+#define __namePropSetDecl(_varName) EVALUATOR(Set, _varName)
+#define __namePropGetDecl(_varName) EVALUATOR(Get, _varName)
+#define __namePropSet(_class, _varName) EVALUATOR(_class, EVALUATOR(Set, _varName))
+#define __namePropGet(_class, _varName) EVALUATOR(_class, EVALUATOR(Get, _varName))
+//During class declaration
+#define ooPropertyDeclare(_class, _type, _name)  \
+		_type ooMethodDeclare(_class, __namePropGetDecl(_name));\
+		void ooMethodDeclare(_class, __namePropSetDecl(_name), _type _name)
+#define ooPropertyDeclareD(_type, _name)  ooPropertyDeclare(_ooClass, _type, _name)
+//During class initialization
+#define ooPropertyInit(_class, _name) \
+	ooMethodInit(_class, __namePropSetDecl(_name));\
+  ooMethodInit(_class, __namePropGetDecl(_name))
+#define ooPropertyInitD(_name) ooPropertyInit(_ooClass, _name)
+
+#define ooPropertyGet(_class, _type, _name)  \
+		_type ooMethod(_class, __namePropGetDecl(_name))
+#define ooPropertySet(_class, _type, _name)  \
+		void ooMethod(_class, __namePropSetDecl(_name), _type _name)
+
+#define ooPropertyGetD(_type, _name)  ooPropertyGet(_ooClass, _type, _name)
+#define ooPropertySetD(_type, _name)  ooPropertySet(_ooClass, _type, _name)
 
 //-----------
 //Implements methods and properties
@@ -203,13 +227,13 @@
 	if ((_obj)->_prev) { \
 		(_obj)->_prev->_next = (_obj)->_next;\
 	}
-#define ooListIsFirst(_obj) ((_obj)->_prev == NULL)
-#define ooListIsLast(_obj) ((_obj)->_next == NULL)
-#define ooListIsEmpty(_obj) ((_obj) && (_obj)->_next == NULL && (_obj)->_prev == NULL)
 #define ooListNext(_obj) ((_obj)->_next)
 #define ooListPrev(_obj) ((_obj)->_prev)
-#define ooListForEach(_obj, _iter) for (_iter = (_obj); _iter; _iter = (_iter)->_next)
-#define ooListFirst(_obj, _iter) _iter = (_obj); while (!ooListIsFirst(_iter)) {_iter = (_iter)->_prev;}
-#define ooListLast(_obj, _iter) _iter = (_obj); while (!ooListIsLast(_iter)) {_iter = (_iter)->_next;}
+#define ooListIsFirst(_obj) (ooListPrev(_obj) == NULL)
+#define ooListIsLast(_obj) (ooListNext(_obj) == NULL)
+#define ooListIsEmpty(_obj) (!(_obj) || ((_obj)->_next == NULL && (_obj)->_prev == NULL))
+#define ooListForEach(_obj, _iter) for (_iter = (_obj); _iter; _iter = ooListNext(_iter))
+#define ooListFirst(_obj, _iter) _iter = (_obj); while (!ooListIsFirst(_iter)) {_iter = ooListPrev(_iter);}
+#define ooListLast(_obj, _iter) _iter = (_obj); while (!ooListIsLast(_iter)) {_iter = ooListNext(_iter);}
 
 #endif /* OOSIMPLE_H_ */
