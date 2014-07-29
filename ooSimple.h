@@ -274,8 +274,8 @@
 #define ooImpAgregator(_class, _classAgregatorFrom) \
 		ooPropertyGetDeclare(_class, ooObj, Iterator);\
 		ooPropertyGetDeclare(_class, int, Count);\
-		void ooMethodDeclare(_class, Add, _classAgregatorFrom *obj);\
-		void ooMethodDeclare(_class, Remove, _classAgregatorFrom *obj);\
+		ooBoolean ooMethodDeclare(_class, Add, _classAgregatorFrom *obj);\
+		ooBoolean ooMethodDeclare(_class, Remove, _classAgregatorFrom *obj);\
 		_classAgregatorFrom *ooMethodDeclare(_class, Index, int idx);
 #define ooImpAgregatorD(_classAgregatorFrom) ooImpAgregator(_ooClass, _classAgregatorFrom)
 #define ooAgregator(_class) this->_cap |= __ooCapAgregable;\
