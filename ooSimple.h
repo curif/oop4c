@@ -16,14 +16,14 @@
 
 //http://stackoverflow.com/questions/1489932/c-preprocessor-and-concatenation
 //#define REFERENCE(x) x
-#define PASTER(x,y) x ## y
-#define EVALUATOR(x,y)  PASTER(x,y)
-#define ASSTRING(x) #x
+#define __concat(_x,_y) _x##_y
+#define __evaluator(_x,_y)  __concat(_x,_y)
+#define __asString(_x) #_x
 
 //working with _ooClass when defined, used in postfixed "D" functions
-#define __namenew(_name) EVALUATOR(_name, New)
-#define __namedestruct(_name) EVALUATOR(_name, Destructor)
-#define __namemethod(_name) EVALUATOR(_ooClass, _name)
+#define __namenew(_name) __evaluator(_name, New)
+#define __namedestruct(_name) __evaluator(_name, Destructor)
+#define __namemethod(_name) __evaluator(_ooClass, _name)
 
 //Base object
 #define __ooObjectBase(_class) unsigned int _cap; \
@@ -38,6 +38,13 @@
 		_base base; \
 		__ooObjectBase(_namestruct)
 
+//--------------------------------------------
+
+#define ooObj void*
+#define in ,
+#define ooBoolean char
+#define ooFalse 0
+#define ooTrue 1
 
 #define ooClass(_class) __ooClass(_class, _class)
 #define ooClassH(_class, _base) __ooClassH(_class, _class, _base)
@@ -112,19 +119,26 @@
 #define ooDeleteFree(_obj) ooDelete(_obj); free(_obj); _obj=NULL //object destruction call and free mem
 
 //setters and getters properties -----------------------------------
-#define __namePropSetDecl(_varName) EVALUATOR(Set, _varName)
-#define __namePropGetDecl(_varName) EVALUATOR(Get, _varName)
-#define __namePropSet(_class, _varName) EVALUATOR(_class, EVALUATOR(Set, _varName))
-#define __namePropGet(_class, _varName) EVALUATOR(_class, EVALUATOR(Get, _varName))
+#define __namePropSetDecl(_varName) __evaluator(Set, _varName)
+#define __namePropGetDecl(_varName) __evaluator(Get, _varName)
+#define __namePropSet(_class, _varName) __evaluator(_class, __evaluator(Set, _varName))
+#define __namePropGet(_class, _varName) __evaluator(_class, __evaluator(Get, _varName))
 //During class declaration
+#define ooPropertyGetDeclare(_class, _type, _name) _type ooMethodDeclare(_class, __namePropGetDecl(_name))
+#define ooPropertySetDeclare(_class, _type, _name) void ooMethodDeclare(_class, __namePropSetDecl(_name), _type _name)
 #define ooPropertyDeclare(_class, _type, _name)  \
-		_type ooMethodDeclare(_class, __namePropGetDecl(_name));\
-		void ooMethodDeclare(_class, __namePropSetDecl(_name), _type _name)
+	ooPropertyGetDeclare(_class, _type, _name);\
+	ooPropertySetDeclare(_class, _type, _name)
+#define ooPropertyGetDeclareD(_type, _name)  ooPropertyGetDeclare(_ooClass, _type, _name)
+#define ooPropertySetDeclareD(_type, _name)  ooPropertyGetDeclare(_ooClass, _type, _name)
 #define ooPropertyDeclareD(_type, _name)  ooPropertyDeclare(_ooClass, _type, _name)
+
 //During class initialization
+#define ooPropertySetInit(_class, _name) ooMethodInit(_class, __namePropSetDecl(_name))
+#define ooPropertyGetInit(_class, _name) ooMethodInit(_class, __namePropGetDecl(_name))
 #define ooPropertyInit(_class, _name) \
-	ooMethodInit(_class, __namePropSetDecl(_name));\
-  ooMethodInit(_class, __namePropGetDecl(_name))
+	ooPropertySetInit(_class, _name);\
+	ooPropertyGetInit(_class, _name)
 #define ooPropertyInitD(_name) ooPropertyInit(_ooClass, _name)
 
 #define ooPropertyGet(_class, _type, _name)  \
@@ -143,6 +157,7 @@
 //Comparable: two objects of same class can compare (compare method)
 //Typeable: a program can know the class of a object.
 //Listable: a object can contain a list of other objects of same class.
+//Iterable: a iterator object
 //Use the ooImpXXX macros during class declaration (ooImpXXXD as well)
 //Use the ooXXXX macros during constructor execution.
 
@@ -152,12 +167,17 @@
 #define __ooCapComparable (1<<2)
 #define __ooCapCopyable (1<<3)
 #define __ooCapListable (1<<4)
+#define __ooCapIterable (1<<5)
+#define __ooCapAgregable (1<<6)
 
+//is...
 #define ooIsClonable(_obj) (((_obj)->_cap & __ooCapClonable) && (_obj)->clone)
 #define ooIsTypeable(_obj) ((_obj)->_cap & __ooCapTypeable)
 #define ooIsComparable(_obj) (((_obj)->_cap & __ooCapComparable) && (_obj)->compare)
 #define ooIsCopyable(_obj) (((_obj)->_cap & __ooCapCopyable) && (_obj)->copy)
 #define ooIsListable(_obj) (((_obj)->_cap & __ooCapListable))
+#define ooIsIterable(_obj) (((_obj)->_cap & __ooCapIterable))
+#define ooIsAgregable(_obj) (((_obj)->_cap & __ooCapAgregable))
 
 //implements comparable, add method compare (must return 1 if the objects are equals)
 #define ooImpComparable(_class) int ooMethodDeclare(_class, compare, _class *compareto)
@@ -179,11 +199,11 @@
 //implements typeable, add property _type
 #define ooImpTypeable(_class) const char *_type
 #define ooImpTypeableD() ooImpTypeable(_ooClass)
-#define ooTypeable(_class) this->_cap |= __ooCapTypeable; this->_type = ASSTRING(_class)
+#define ooTypeable(_class) this->_cap |= __ooCapTypeable; this->_type = __asString(_class)
 #define ooTypeableD() ooTypeable(_ooClass)
 #define ooType(_obj) (_obj)->_type //object type, return class name
 //compare objects class name
-#define ooTypeOf(_obj, _class) ((_obj)->_cap & __ooCapTypeable? strcmp(ooType(_obj), ASSTRING(_class))==0 : 0)
+#define ooTypeOf(_obj, _class) ((_obj)->_cap & __ooCapTypeable? strcmp(ooType(_obj), __asString(_class))==0 : 0)
 
 //implements typeable, add method copy
 #define ooImpCopiable(_class) void ooMethodDeclare(_class, copy, _class *tocopy)
@@ -235,5 +255,36 @@
 #define ooListForEach(_obj, _iter) for (_iter = (_obj); _iter; _iter = ooListNext(_iter))
 #define ooListFirst(_obj, _iter) _iter = (_obj); while (!ooListIsFirst(_iter)) {_iter = ooListPrev(_iter);}
 #define ooListLast(_obj, _iter) _iter = (_obj); while (!ooListIsLast(_iter)) {_iter = ooListNext(_iter);}
+
+//iterator
+#define ooImpIterator(_class, _classAgregator) \
+		ooPropertyGetDeclare(_class, _classAgregator *, Next);\
+		ooPropertyGetDeclare(_class, _classAgregator *, Current);\
+		ooPropertyGetDeclare(_class, ooBoolean, HasNext);
+#define ooImpIteratorD() ooImpIterator(_ooClass)
+#define ooIterator(_class) this->_cap |= __ooCapIterable;\
+	ooPropertyGetInit(_class, Next);\
+	ooPropertyGetInit(_class, HasNext);\
+	ooPropertyGetInit(_class, Current)
+#define ooIteratorD() ooIterator(_ooClass)
+#define ooIterForEach(_iter, _coll) \
+	for (_iter = (_coll)->GetIterator((_coll)); (_iter)->GetHasNext((_iter)); (_iter)->GetNext(_iter))
+
+//Agregable (collections)
+#define ooImpAgregator(_class, _classAgregatorFrom) \
+		ooPropertyGetDeclare(_class, ooObj, Iterator);\
+		ooPropertyGetDeclare(_class, int, Count);\
+		void ooMethodDeclare(_class, Add, _classAgregatorFrom *obj);\
+		void ooMethodDeclare(_class, Remove, _classAgregatorFrom *obj);\
+		_classAgregatorFrom *ooMethodDeclare(_class, Index, int idx);
+#define ooImpAgregatorD(_classAgregatorFrom) ooImpAgregator(_ooClass, _classAgregatorFrom)
+#define ooAgregator(_class) this->_cap |= __ooCapAgregable;\
+		ooPropertyGetInit(_class, Iterator);\
+		ooPropertyGetInit(_class, Count);\
+		ooMethodInit(_class, Add);\
+		ooMethodInit(_class, Remove);\
+		ooMethodInit(_class, Index)
+#define ooAgregatorD() ooAgregator(_ooClass)
+
 
 #endif /* OOSIMPLE_H_ */
