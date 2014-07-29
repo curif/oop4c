@@ -49,4 +49,30 @@ ooPropertyDeclare(punto3d, int, z);
 
 ooClassEnd
 
+//collection of punto ---------------------------------------
+ooClass(puntoColl)
+
+ooImpAgregator(puntoColl, punto); //Add, Remove, Index, GetIterator
+
+punto **arr;
+int count;
+int len;
+
+ooClassEnd
+
+//iterator over puntoColl -----------------
+ooClass(puntoIter)
+
+ooImpIterator(puntoIter, punto);  //Next, HasNext
+
+puntoColl *coll;
+int idxCurrent;
+
+ooClassEnd
+
+ooCtor(puntoColl);
+ooDtor(puntoColl);
+ooCtor(puntoIter, puntoColl *coll);
+ooDtor(puntoIter);
+
 #endif /* OOTEST_H_ */
