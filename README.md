@@ -1,12 +1,26 @@
 oop4c
 =====
-A header only oop toolkit for C.
+A header only oop toolkit for C, with easy common implementation patterns.
 
 ###Description
 Point 1: Before start... did you try C++?, why don't?. Continue if you have a coherent response, if not please analize your needs.
 
 With this header a C program can work with a sort of Object Oriented Programming using just one include.
 This is a structure based, all preprocesor macro implementation and without vtables solution (if you don't know what a vtable is, please read the point 1). If you really need vtables, may be you need C++.
+
+####Basic method implementation
+To add basic functionality to a class:
+
+ * Copyable: Make the class copiable
+ * Typeable: Convert a class in comparable by his type.
+ * Clonable: To make an object's duplicate.
+ * Comparable: To compare two objects instance of the same class.
+ * Listable: Add double list functionality to a class.
+ * Agregable: Implement agregato pattern (collections).
+ * Iterator: Implement iterator pattern.
+ 
+Check ootest.c and ootest.h for more information. 
+ 
 
 ###Example: class punto, class punto3d subclass punto:
 punto.h:
@@ -196,19 +210,10 @@ punto3d.h
 
  ooClassEnd
 ```
-####Basic method implementation
-To add basic functionality to a class:
 
- * Copyable: Make the class copiable
- * Typeable: Convert a class in comparable by his type.
- * Clonable: To make an object's duplicate.
- * Comparable: To compare two objects instance of the same class.
- * Listable: Add double list functionality to a class.
- 
-Check ootest.c and ootest.h for more information. 
- 
 ###References
 * [book] (http://www.cs.rit.edu/~ats/books/ooc.pdf)
 * [stackoverflow: Can you write object oriented code in C?] (http://stackoverflow.com/questions/415452/object-orientation-in-c)
 * [stackoverflow: Object-Orientation in C] (http://stackoverflow.com/questions/415452/object-orientation-in-c)
 * [Object Oriented Programming in C (Laurent Deniau)] (http://ldeniau.web.cern.ch/ldeniau/html/oopc.html)
+* [Iterator pattern] (http://www.codeproject.com/Articles/362986/Understanding-and-Implementing-the-Iterator-Patter)
