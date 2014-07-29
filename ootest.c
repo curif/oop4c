@@ -119,11 +119,118 @@ ooDtor(punto3d) {
 	return;
 }
 
+//Collection & iterator --------------------------------------
+/**
+ * Add a punto to collection.
+ */
+void ooMethod(puntoColl, Add, punto *p) {
+	this->count++;
+	if (!this->arr || this->count > this->len) {
+		this->len+=10;
+		this->arr = realloc(this->arr, this->len * sizeof(punto));
+	}
+	this->arr[this->count-1] = p;
+}
+/**
+ * Add a punto from collection
+ */
+void ooMethod(puntoColl, Remove, punto *p) {
+	int f, g, found=-1;
+	if (!this->count) {
+		return;
+	}
+	for (f=0; f<this->count; f++) {
+		if (p == this->arr[f]) {
+			found = f;
+			break;
+		}
+	}
+	if (found>=0) {
+		for (g = f+1; g < this->count; g++) {
+			this->arr[g-1] = this->arr[g];
+		}
+		this->arr[this->count-1]=NULL;
+		this->count--;
+	}
+	return;
+}
+/**
+ * Get an iterator.
+ */
+ooPropertyGet(puntoColl, ooObj, Iterator) {
+	puntoIter *i;
+	i = ooNew(puntoIter, i, this);
+	return i;
+}
+/***
+ * Count elements
+ */
+ooPropertyGet(puntoColl, int, Count) {
+	return this->count;
+}
+/**
+ * Get a punto from collection.
+ */
+punto *ooMethod(puntoColl, Index, int idx) {
+	if (idx > this->count - 1) {
+		return NULL;
+	}
+	return this->arr[idx];
+}
+/**
+ * Collection constructor
+ */
+ooCtor(puntoColl) {
+	ooAgregator(puntoColl);
+}
+/**
+ * Collection destructor
+ */
+ooDtor(puntoColl) {
+	if (this->arr) {
+		free(this->arr);
+	}
+	return;
+}
+
+//Iterator -----------------
+
+ooPropertyGet(puntoIter, ooBoolean, HasNext) {
+	if (!this->coll) {
+		return ooFalse;
+	}
+	return this->idxCurrent < this->coll->GetCount(this->coll);
+}
+ooPropertyGet(puntoIter, punto *, Next) {
+	if (!this->GetHasNext(this)) {
+		return NULL;
+	}
+	this->idxCurrent++;
+	return this->GetCurrent(this);
+}
+ooPropertyGet(puntoIter, punto *, Current) {
+	return this->coll->Index(this->coll, this->idxCurrent);
+}
+
+ooCtor(puntoIter, puntoColl *coll) {
+	ooIterator(puntoIter);
+	if (ooIsAgregable(coll)) {
+		this->coll = coll;
+	}
+}
+
+ooDtor(puntoIter) {
+	return;
+}
+
 int main() {
 	punto3d *p;
 	punto3d pCopied;
 	punto3d *pCloned;
 	punto *pu;
+	int f;
+	puntoColl *pc;
+	puntoIter *i;
 
 	printf("----------------------------------------------\n");
 	printf("oop4c test example\n");
@@ -208,7 +315,6 @@ int main() {
 	//list test ---------------------------
 	punto3d *l, *l2;
 	punto3d *iter;
-	int f;
 	l = NULL;
 	//add 10 obj to list.
 	for (f=0; f<10; f++) {
@@ -296,8 +402,36 @@ int main() {
 	ooDeleteFree(p);
 	ooDeleteFree(pCloned);
 	ooDelete(&pCopied);
-
 	printf("Objects destroyed\n");
+
+	//TEST collections and iterators
+	printf("TEST collections \n");
+	pc = ooNew(puntoColl, pc); //Create collection
+	//load 20 items
+	for (f=0; f<20; f++) {
+		pu = ooNew(punto, pu, f, 0);
+		pc->Add(pc, pu);
+		printf("Add %i to collection, count:%i\n", f, pc->GetCount(pc));
+	}
+
+	//iterate collection
+	printf("Iteration\n");
+	ooIterForEach(i,  pc) {
+		pu = i->GetCurrent(i);
+		printf("Member %i ok\n", pu->Getx(pu));
+	}
+	ooDeleteFree(i); //remember to destroy iterator.
+
+	//Delete all members
+	printf("Delete collection:\n");
+	while (pc->GetCount(pc)) {
+		pu = pc->Index(pc, 0); //Obtain object in position 0.
+		printf("Delete member:%i\n", pu->Getx(pu));
+		pc->Remove(pc, pu); //Remove from the collection
+		ooDeleteFree(pu); //Destroy object
+	}
+	printf("Actual collection members:%i\n", pc->GetCount(pc));
+	ooDeleteFree(pc);
 
 	return EXIT_SUCCESS;
 }
