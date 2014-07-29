@@ -127,7 +127,7 @@ void ooMethod(puntoColl, Add, punto *p) {
 	this->count++;
 	if (!this->arr || this->count > this->len) {
 		this->len+=10;
-		this->arr = realloc(this->arr, this->len * sizeof(punto));
+		this->arr = realloc(this->arr, this->len * sizeof(punto*));
 	}
 	this->arr[this->count-1] = p;
 }
