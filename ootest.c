@@ -123,18 +123,23 @@ ooDtor(punto3d) {
 /**
  * Add a punto to collection.
  */
-void ooMethod(puntoColl, Add, punto *p) {
-	this->count++;
-	if (!this->arr || this->count > this->len) {
-		this->len+=10;
-		this->arr = realloc(this->arr, this->len * sizeof(punto*));
+ooBoolean ooMethod(puntoColl, Add, punto *p) {
+	if (!this->arr || this->count + 1 > this->len) {
+		void *new = realloc(this->arr, (this->len + 10) * sizeof(punto*));
+		if (!new) {
+			return ooFalse;
+		}
+		this->len += 10;
+		this->arr = new;
 	}
-	this->arr[this->count-1] = p;
+	this->arr[this->count] = p;
+	this->count++;
+	return ooTrue;
 }
 /**
  * Add a punto from collection
  */
-void ooMethod(puntoColl, Remove, punto *p) {
+ooBoolean ooMethod(puntoColl, Remove, punto *p) {
 	int f, g, found=-1;
 	if (!this->count) {
 		return;
@@ -152,7 +157,7 @@ void ooMethod(puntoColl, Remove, punto *p) {
 		this->arr[this->count-1]=NULL;
 		this->count--;
 	}
-	return;
+	return found>=0;
 }
 /**
  * Get an iterator.
