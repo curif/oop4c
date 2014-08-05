@@ -20,25 +20,6 @@
 #define __evaluator(_x,_y)  __concat(_x,_y)
 #define __asString(_x) #_x
 
-//working with _ooClass when defined, used in postfixed "D" functions
-#define __namenew(_name) __evaluator(_name, New)
-#define __namedestruct(_name) __evaluator(_name, Destructor)
-#define __namemethod(_name) __evaluator(_ooClass, _name)
-
-//Base object
-#define __ooObjectBase(_class) unsigned int _cap; \
-	void (*destroy)(_class *this);
-
-#define __ooClass(_namestruct, _class) typedef struct _namestruct _class; \
-	struct _namestruct {\
-		__ooObjectBase(_namestruct)
-
-#define __ooClassH(_namestruct, _class, _base) typedef struct _namestruct _class; \
-	struct _namestruct {\
-		_base base; \
-		__ooObjectBase(_namestruct)
-
-//--------------------------------------------
 
 #define ooObj void*
 #define in ,
@@ -46,13 +27,37 @@
 #define ooFalse 0
 #define ooTrue 1
 
+//working with _ooClass when defined, used in postfixed "D" functions
+
+#define __namenew(_name) __evaluator(_name, New)
+#define __namedestruct(_name) __evaluator(_name, Destructor)
+#define __namemethod(_name) __evaluator(_ooClass, _name)
+
+//Base object
+#define __ooObjectBase(_class) \
+	unsigned int _cap; \
+	void (*destroy)(_class *this);
+
+#define __ooClass(_namestruct, _class) \
+	typedef struct _namestruct _class; \
+	struct _namestruct {
+
+#define __ooClassH(_namestruct, _class, _base) typedef struct _namestruct _class; \
+	struct _namestruct {\
+		_base base;
+
+//--------------------------------------------
+
 #define ooClass(_class) __ooClass(_class, _class)
 #define ooClassH(_class, _base) __ooClassH(_class, _class, _base)
 //Working with the _ooClass definition (D as postfix in every function)
 #define ooClassD __ooClass(_ooClass, _ooClass)
 #define ooClassDH(_base) __ooClassH(_ooClass, _ooClass, _base)
 
-#define ooClassEnd };
+#define ooClassEnd(_class) \
+		__ooObjectBase(_class)\
+	};
+#define ooClassEndD() ooClassEnd(_ooClass)
 
 //initialization
 #define __ooInit(_class, _obj, _nameDestruct, _nameNew, _params...) \
@@ -130,7 +135,7 @@
 	ooPropertyGetDeclare(_class, _type, _name);\
 	ooPropertySetDeclare(_class, _type, _name)
 #define ooPropertyGetDeclareD(_type, _name)  ooPropertyGetDeclare(_ooClass, _type, _name)
-#define ooPropertySetDeclareD(_type, _name)  ooPropertyGetDeclare(_ooClass, _type, _name)
+#define ooPropertySetDeclareD(_type, _name)  ooPropertySetDeclare(_ooClass, _type, _name)
 #define ooPropertyDeclareD(_type, _name)  ooPropertyDeclare(_ooClass, _type, _name)
 
 //During class initialization
@@ -140,6 +145,16 @@
 	ooPropertySetInit(_class, _name);\
 	ooPropertyGetInit(_class, _name)
 #define ooPropertyInitD(_name) ooPropertyInit(_ooClass, _name)
+#define ooPropertySetInitD(_name) ooPropertySetInit(_ooClass, _name)
+#define ooPropertyGetInitD(_name) ooPropertyGetInit(_ooClass, _name)
+
+#define ooPropertySetInitOverride(_class, _name) ooMethodInitOverride(_class, __namePropSetDecl(_name))
+#define ooPropertyGetInitOverride(_class, _name) ooMethodInitOverride(_class, __namePropGetDecl(_name))
+#define ooPropertyInitOverride(_class, _name) \
+	ooPropertySetInitOverride(_class, _name);\
+	ooPropertyGetInitOverride(_class, _name)
+#define ooPropertyInitOverrideD(_name) ooPropertyInitOverride(_ooClass, _name)
+
 
 #define ooPropertyGet(_class, _type, _name)  \
 		_type ooMethod(_class, __namePropGetDecl(_name))
@@ -148,6 +163,17 @@
 
 #define ooPropertyGetD(_type, _name)  ooPropertyGet(_ooClass, _type, _name)
 #define ooPropertySetD(_type, _name)  ooPropertySet(_ooClass, _type, _name)
+
+#define ooPropertyGetOverride(_class, _classBase, _type, _name) \
+	_type ooMethodOverride(_class, _classBase, __namePropGetDecl(_name))
+#define ooPropertyGetOverrideD(_classBase, _type, _name) \
+	ooPropertyGetOverride(_ooClass, _classBase, _type, _name)
+#define ooPropertySetOverride(_class, _classBase, _type, _name)  \
+	void ooMethodOverride(_class, _classBase, __namePropSetDecl(_name), _type _name)
+#define ooPropertySetOverrideD(_classBase, _type, _name)  \
+	ooPropertySetOverride(_ooClass, _classBase, _type, _name)
+
+
 
 //-----------
 //Implements methods and properties
@@ -158,6 +184,9 @@
 //Typeable: a program can know the class of a object.
 //Listable: a object can contain a list of other objects of same class.
 //Iterable: a iterator object
+//Stringable: Implements ToString method
+//Serializable: Implements the Serializable pattern
+
 //Use the ooImpXXX macros during class declaration (ooImpXXXD as well)
 //Use the ooXXXX macros during constructor execution.
 
@@ -169,6 +198,8 @@
 #define __ooCapListable (1<<4)
 #define __ooCapIterable (1<<5)
 #define __ooCapAgregable (1<<6)
+#define __ooCapStringable (1<<7)
+#define __ooCapSerializable (1<<8)
 
 //is...
 #define ooIsClonable(_obj) (((_obj)->_cap & __ooCapClonable) && (_obj)->clone)
@@ -178,6 +209,7 @@
 #define ooIsListable(_obj) (((_obj)->_cap & __ooCapListable))
 #define ooIsIterable(_obj) (((_obj)->_cap & __ooCapIterable))
 #define ooIsAgregable(_obj) (((_obj)->_cap & __ooCapAgregable))
+#define ooIsSerializable(_obj) (((_obj)->_cap & __ooCapSerializable))
 
 //implements comparable, add method compare (must return 1 if the objects are equals)
 #define ooImpComparable(_class) int ooMethodDeclare(_class, compare, _class *compareto)
@@ -285,6 +317,22 @@
 		ooMethodInit(_class, Remove);\
 		ooMethodInit(_class, Index)
 #define ooAgregatorD() ooAgregator(_ooClass)
+
+//Stringable
+#define ooImpStringable(_class) char *ooMethodDeclare(_class, ToString, char*buf, int lenBut)
+#define ooImpStringableD() ooImpStringable(_ooClass)
+#define ooStringable(_class) this->_cap |= __ooCapStringable;\
+	ooMethodInit(_class, ToString)
+#define ooStringableD() ooStringable(_ooClass)
+
+#define ooImpSerializable(_class) \
+	char *ooMethodDeclare(_class, Serialize, long  *lenBuf);\
+	ooBoolean ooMethodDeclare(_class, Deserialize, char *buf, long lenBuf);
+#define ooImpSerializableD() ooImpSerializable(_ooClass)
+#define ooSerializable(_class) this->_cap |= __ooCapSerializable;\
+	ooMethodInit(_class, Serialize);\
+	ooMethodInit(_class, Deserialize);
+#define ooSerializableD() ooSerializable(_ooClass)
 
 
 #endif /* OOSIMPLE_H_ */
