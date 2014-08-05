@@ -2,14 +2,13 @@ oop4c
 =====
 A header only oop toolkit for C, with easy common implementation patterns.
 
+
 ###Description
-Point 1: Before start... did you try C++?, why don't?. Continue if you have a coherent response, if not please analize your needs.
-
 With this header a C program can work with a sort of Object Oriented Programming using just one include.
-This is a structure based, all preprocesor macro implementation and without vtables solution (if you don't know what a vtable is, please read the point 1). If you really need vtables, may be you need C++.
+This is a structure based, all preprocesor macro (ab)use implementation and without vtables solution.
 
-####Basic method implementation
-To add basic functionality to a class:
+####Basic pattern implementation
+To add basic pattern functionality to a class:
 
  * Copyable: Make the class copiable
  * Typeable: Convert a class in comparable by his type.
@@ -18,197 +17,200 @@ To add basic functionality to a class:
  * Listable: Add double list functionality to a class.
  * Agregable: Implement agregato pattern (collections).
  * Iterator: Implement iterator pattern.
+ * Stringable: Implements ToString method
+ * Serializable: Implements the Serializable pattern
  
 Check ootest.c and ootest.h for more information. 
  
 
-###Example: class punto, class punto3d subclass punto:
-punto.h:
-```
- #include "ooSimple.h"
+###Example: class ooString 
 
- //class definition
- ooClass(punto)
- int x;
- int y;
- int ooMethodDeclare(punto, sum); //sum method declaration
- ooClassEnd
+ooString.h:
 ```
-punto.c 
-```
- #include "punto.h"
- 
- //define method "sum"
- int ooMethod(punto, sum) {
-   return this->x + this->y;
- }
- //punto constructor
- ooCtor(punto, int x, int y) {
-   this->x = x;
-   this->y = y;
-   //Asign the sum method
-   ooMethodSet(sum);
- }
- //punto destructor
- ooDtor(punto) {
-   return;
- }
-```
+#ifndef OOSTRING_H_
+#define OOSTRING_H_
 
-punto3d.h
-```
- #include "ooSimple.h"
- #include "punto.h"
+#include <string.h>
 
- //declare class punto3d subclass of punto
- ooClassH(punto3d, punto)
- int z;
- int ooMethodDeclare(punto3d, getx);
- int ooMethodDeclare(punto3d, gety);
- int ooMethodDeclare(punto3d, getz);
- void ooMethodDeclare(punto3d, setx, int px);
- void ooMethodDeclare(punto3d, sety, int py);
- void ooMethodDeclare(punto3d, setz, int pz);
- void ooMethodDeclare(punto3d, setxy, int px, int py);
- ooClassEnd
-```
+#include "ooSimple.h"
 
-punto3d.c
+#define ooStringC(_st) (char*)(_st)->st
+
+//Declare class ooString
+ooClass(ooString)
+
+char *st;
+int len;
+
+//Implements Type
+ooImpTypeable(ooString);
+
+//Declare properties
+ooPropertyGetDeclare(ooString, ooBoolean, IsEmpty);
+ooPropertyGetDeclare(ooString, int, Len);
+
+//Declare Methods
+ooString *ooMethodDeclare(ooString, Cat, char *st);
+ooString *ooMethodDeclare(ooString, Copy, char *st);
+ooBoolean ooMethodDeclare(ooString, Equal, char *st);
+
+//End Class
+ooClassEnd(ooString)
+
+//Declare constructor and destuctor.
+ooCtor(ooString, char *st);
+ooDtor(ooString);
+
+#endif /* OOSTRING_H_ */
 ```
- #include "punto3d.h"
+ooString.c 
+```
+#include "ooString.h"
+
+ooPropertyGet(ooString, int, Len) {
+  return this->len;
+}
+ooPropertyGet(ooString, ooBoolean, IsEmpty) {
+  return this->len==0? ooTrue: ooFalse;
+}
+ooString *ooMethod(ooString, Cat, char *st) {
+  if (st) {
+    int l = strlen(st);
+    if (l) {
+      void *new = realloc(this->st, this->len + l + 1);
+      if (new) {
+        this->st = new;
+        strcpy(this->st + this->len, st);
+	      this->len += l;
+      }
+    }
+  } 
+  return this;
+}
+
+ooBoolean ooMethod(ooString, Equal, char *st) {
+  return(strcmp(this->st, st) == 0 ? ooTrue: ooFalse);
+}
+
+ooString *ooMethod(ooString, Copy, char *st) {
+  if (st) {
+    int l = strlen(st);
+    if (l) {
+      char *new = (char*) malloc(l + 1);
+      if (new) {
+        if (this->st) {
+          free(this->st);
+        }
+        this->st = new;
+        strcpy(this->st, st);
+        this->len = l;
+      }
+    }
+  }
+  return this;
+}
+
+//Constructor
+ooCtor(ooString, char *st) {
+
+  //Initialize methods
+  ooMethodInit(ooString, Copy);
+  ooMethodInit(ooString, Cat);
+  ooMethodInit(ooString, Equal);
+  //Initialize properties
+  ooPropertyGetInit(ooString, IsEmpty);
+  ooPropertyGetInit(ooString, Len);
+  //Initialize Typeable 
+  ooTypeable(ooString);
+
+  //copy the initial value
+  this->Copy(this, st);
   
- //------------------------------
- //method sum in subclass punto3d overrides method sum in parent class punto
- int ooMethodOverride(punto3d, punto, sum) {
-   ooThisDeclare(punto3d); //declare this when a method override the same parent method.
-	 return this->z + base->x + base->y;
- }
- int ooMethod(punto3d, getx) {
-   return ooBase()->x ;
- }
- int ooMethod(punto3d, gety) {
-	 return ooBase()->y ;
- }
- int ooMethod(punto3d, getz) {
-   return this->z ;
- }
- void ooMethod(punto3d, setx, int x) {
-   ooBase()->x = x ;
- }
- void ooMethod(punto3d, sety, int y) {
-   ooBase()->y = y ;
- }
- void ooMethod(punto3d, setz, int z) {
-   this->z = z ;
- }
- void ooMethod(punto3d, setxy, int x, int y) {
-   ooBase()->y = y ;
- }
- 
- //punto3d constructor
- ooCtor(punto3d, int x, int y, int z) {
+  return;
+}
 
-	//initialize parent
-	ooInit(punto, ooBase(), x, y);
+//Destructor
+ooDtor(ooString) {
+  if (this->st) {
+    free(this->st);
+  }
+  return;
+}
 
-	//methods
-	//ooMethodSet(punto3d, sum); //don't needed
-	ooMethodSet(punto3d, getx);
-	ooMethodSet(punto3d, gety);
-	ooMethodSet(punto3d, getz);
-	ooMethodSet(punto3d, setx);
-	ooMethodSet(punto3d, sety);
-	ooMethodSet(punto3d, setz);
-
-	//Override parent method with is own.
-	ooMethodSetOverride(punto3d, sum);
-
-	//properties initialization
-	this->z = z;
-
-	return;
- }
- //punto3d destructor.
- ooDtor(punto3d) {
- }
 ```
-main.c
+
+ooStringTest.c
 ```
- int main() {
-   punto3d *p;
-   punto3d p2;
-   punto3d p3;
-   punto *pu;
-	
-   p = ooNew(punto3d, p, 10, 10, 30);
-   ooInit(punto3d, &p2, 100, 100, 300);
- 
-   printf("p: %i+%i+%i = sum:%i\n", p->base.x, p->base.y, p->z, p->base.sum((punto*)p));
 
-   printf("p2: %i+%i+%i = sum:%i\n", p2.base.x, p2.base.y, p2.z, p2.base.sum((punto*)&p2));
-  
-   p->setx(p,20);
-   p->sety(p,50);
-   p->setz(p,100);
-   printf("%i+%i+%i = sum:%i\n", p->getx(p), p->gety(p), p->getz(p), p->base.sum((punto*)p)); 
+#include <stdio.h>
+#include "ooString.h"
 
-   p2.setx(&p2,200);
-   p2.sety(&p2,500);
-   p2.setz(&p2,1000);
-   printf("p2: %i+%i+%i = sum:%i\n", p2.getx(&p2), p2.gety(&p2), p2.getz(&p2), p2.base.sum((punto*)&p2));
-  
-   //Polymorphism, cast a punto3d object as class punto
-   pu = (punto*)p;
-   printf("pu: %i+%i = sum:%i\n", pu->x, pu->y, pu->sum(pu));
-   if (pu->sum(pu) != 170) {
-     printf("ERROR\n");
-   }
- 
-   //delete objects.
-   ooDeleteFree(p);
-   ooDelete(&p2);
-   ooDelete(&p3);
- }
+int main() {
+	ooString *This;
+	ooString *is;
+	ooString *aTest;
+	ooString *all;
+
+	This = ooNew(ooString, This, "This ");
+	is = ooNew(ooString, is, "is ");
+	aTest = ooNew(ooString, aTest, NULL);
+	aTest->Copy(aTest, "a ooString Test.");
+
+	printf("%s%s%s\n", ooStringC(This), ooStringC(is), ooStringC(aTest));
+	printf("Len: %i, %i, %i\n", This->GetLen(This), is->GetLen(is), aTest->GetLen(aTest));
+
+	all = ooNew(ooString, all, NULL);
+	printf("All: %s\n", ooStringC(all->Cat(all, ooStringC(This))->Cat(all, ooStringC(is))->Cat(all, ooStringC(aTest))));
+
+	if (! all->Equal(all, "This is a ooString Test.")) {
+		printf("ERROR Equal\n");
+	}
+
+	ooDeleteFree(This);
+	ooDeleteFree(is);
+	ooDeleteFree(aTest);
+	ooDeleteFree(all);
+
+	return(0);
+}
+
 ```
 
 ###As alternative you can use a shorter form, simply declare the _ooClass macro, add a "D" in every function macro:
 
-punto.h:
+ooString.h:
 ``` 
- #include "ooSimple.h"
- 
- #undef _ooClass
- #define _ooClass punto
+#ifndef OOSTRING_H_
+#define OOSTRING_H_
 
- //class definition
- ooClassD
- int x;
- int y;
- int ooMethodDeclareD(sum);
- ooClassEnd
-```
-punto3d.h
-```
- #include "ooSimple.h"
- #include "punto.h"
+#include <string.h>
+#include "ooSimple.h"
 
- #undef _ooClass
- #define _ooClass punto3d
- 
- //declare class punto3d subclass of punto
- ooClassDH(punto)
- 
- int z;
- 
- int ooMethodDeclareD(getx);
- int ooMethodDeclareD(gety);
- int ooMethodDeclareD(getz);
- void ooMethodDeclareD(setx, int px);
- void ooMethodDeclareD(sety, int py);
- void ooMethodDeclareD(setz, int pz);
- void ooMethodDeclareD(setxy, int px, int py);
 
- ooClassEnd
+#define ooStringC(_st) (char*)(_st)->st
+
+//Declare class ooString
+#undef _ooClass
+#define _ooClass ooString
+ooClassD()
+
+char *st;
+int len;
+
+ooImpTypeableD();
+ooPropertyGetDeclareD(ooBoolean, IsEmpty);
+ooPropertyGetDeclareD(int, Len);
+ooString *ooMethodDeclareD(Cat, char *st);
+ooString *ooMethodDeclareD(Copy, char *st);
+ooBoolean ooMethodDeclareD(Equal, char *st);
+
+ooClassEndD()
+
+//Declare constructor and destuctor.
+ooCtor(ooString, char *st);
+ooDtor(ooString);
+
+#endif /* OOSTRING_H_ */
 ```
 
 ###References
