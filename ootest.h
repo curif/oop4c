@@ -18,6 +18,7 @@ ooClassD
 
 //implements...
 ooImpTypeableD();
+ooImpStringableD();
 
 //properties (define Get & Set - puntoGetx, puntoSetx
 int x;
@@ -28,7 +29,7 @@ ooPropertyDeclareD(int, y);
 //methods
 int ooMethodDeclareD(sum);
 
-ooClassEnd
+ooClassEndD()
 
 //punto3d definition, subclass of punto
 ooClassH(punto3d, punto)
@@ -39,6 +40,7 @@ ooImpTypeable(punto3d);
 ooImpCopiable(punto3d);
 ooImpComparable(punto3d);
 ooImpListable(punto3d);
+ooImpStringable(punto3d);
 
 //properties
 int z;
@@ -47,7 +49,7 @@ ooPropertyDeclare(punto3d, int, x);
 ooPropertyDeclare(punto3d, int, y);
 ooPropertyDeclare(punto3d, int, z);
 
-ooClassEnd
+ooClassEnd(punto3d)
 
 //collection of punto ---------------------------------------
 ooClass(puntoColl)
@@ -58,7 +60,7 @@ punto **arr;
 int count;
 int len;
 
-ooClassEnd
+ooClassEnd(puntoColl)
 
 //iterator over puntoColl -----------------
 ooClass(puntoIter)
@@ -68,7 +70,7 @@ ooImpIterator(puntoIter, punto);  //Next, HasNext
 puntoColl *coll;
 int idxCurrent;
 
-ooClassEnd
+ooClassEnd(puntoIter)
 
 ooCtor(puntoColl);
 ooDtor(puntoColl);
