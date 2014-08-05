@@ -27,10 +27,14 @@ ooPropertySetD(int, y) {
 int ooMethodD(sum) {
 	return this->x + this->y;
 }
-
+char *ooMethodD(ToString, char *buf, int len) {
+	snprintf(buf, len, "%i, %i", this->x, this->y);
+	return buf;
+}
 ooCtorD(int x, int y) {
 
 	ooTypeableD();
+	ooStringableD();
 
 	this->x = x;
 	this->y = y;
@@ -91,6 +95,12 @@ void ooMethod(punto3d, copyWithoutZ, punto3d *to) {
 int ooMethod(punto3d, compare, punto3d *with) {
 	return this->base.x == with->base.x && this->base.y == with->base.y && this->z == with->z;
 }
+char *ooMethod(punto3d, ToString, char *buf, int len) {
+	ooBaseDeclare(punto);
+	char buf2[20];
+	snprintf(buf, len, "%s, %i", base->ToString(base, buf2, 20), this->z);
+	return buf;
+}
 ooCtor(punto3d, int x, int y, int z) {
 	//parent init.
 	ooInitD(ooBase(), x, y);
@@ -101,6 +111,7 @@ ooCtor(punto3d, int x, int y, int z) {
 	ooCopiable(punto3d, copyWithoutZ);
   ooComparable(punto3d, compare);
   ooListable(punto3d);
+  ooStringable(punto3d);
 
 	//Initialize Properties
   ooPropertyInit(punto3d, x);
@@ -236,6 +247,7 @@ int main() {
 	int f;
 	puntoColl *pc;
 	puntoIter *i;
+	char st[50];
 
 	printf("----------------------------------------------\n");
 	printf("oop4c test example\n");
@@ -247,6 +259,7 @@ int main() {
 	p->Setx(p,20);
 	p->Sety(p,50);
 	p->Setz(p,100);
+	printf("ToString: %s\n", p->ToString(p, st, 50));
 	printf("%i+%i+%i = sum:%i\n", p->Getx(p), p->Gety(p), p->Getz(p), p->base.sum((punto*)p));
 
 	//Clone p
