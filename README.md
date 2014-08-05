@@ -176,7 +176,7 @@ int main() {
 
 ```
 
-###As alternative you can use a shorter form, simply declare the _ooClass macro, add a "D" in every function macro:
+###As alternative you can use a shorter form, just declare the _ooClass macro, add a "D" in every function macro:
 
 ooString.h:
 ``` 
