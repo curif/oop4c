@@ -4,7 +4,7 @@ A header only oop toolkit for C, with easy common implementation patterns.
 
 
 ###Description
-With this header a C program can work with a sort of Object Oriented Programming using just one include.
+Add Object Oriented Programming to a C program using just one include.
 This is a structure based, all preprocesor macro (ab)use implementation and without vtables solution.
 
 ####Basic pattern implementation
