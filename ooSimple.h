@@ -22,7 +22,6 @@
 
 
 #define ooObj void*
-#define in ,
 #define ooBoolean char
 #define ooFalse 0
 #define ooTrue 1
