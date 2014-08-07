@@ -21,7 +21,9 @@ To add basic pattern functionality to a class:
  * Serializable: Implements the Serializable pattern
  
 Check ootest.c and ootest.h for more information. 
- 
+
+###Use
+Add ```#include "ooSimple.h"``` to your C program and you are ready.
 
 ###Example: class ooString 
 
@@ -39,20 +41,20 @@ ooString.h:
 //Declare class ooString
 ooClass(ooString)
 
-char *st;
-int len;
+  char *st;
+  int len;
 
-//Implements Type
-ooImpTypeable(ooString);
+  //Implements Type
+  ooImpTypeable(ooString);
 
-//Declare properties
-ooPropertyGetDeclare(ooString, ooBoolean, IsEmpty);
-ooPropertyGetDeclare(ooString, int, Len);
+  //Declare properties
+  ooPropertyGetDeclare(ooString, ooBoolean, IsEmpty);
+  ooPropertyGetDeclare(ooString, int, Len);
 
-//Declare Methods
-ooString *ooMethodDeclare(ooString, Cat, char *st);
-ooString *ooMethodDeclare(ooString, Copy, char *st);
-ooBoolean ooMethodDeclare(ooString, Equal, char *st);
+  //Declare Methods
+  ooString *ooMethodDeclare(ooString, Cat, char *st);
+  ooString *ooMethodDeclare(ooString, Copy, char *st);
+  ooBoolean ooMethodDeclare(ooString, Equal, char *st);
 
 //End Class
 ooClassEnd(ooString)
@@ -194,15 +196,15 @@ ooString.h:
 #define _ooClass ooString
 ooClassD()
 
-char *st;
-int len;
+  char *st;
+  int len;
 
-ooImpTypeableD();
-ooPropertyGetDeclareD(ooBoolean, IsEmpty);
-ooPropertyGetDeclareD(int, Len);
-ooString *ooMethodDeclareD(Cat, char *st);
-ooString *ooMethodDeclareD(Copy, char *st);
-ooBoolean ooMethodDeclareD(Equal, char *st);
+  ooImpTypeableD();
+  ooPropertyGetDeclareD(ooBoolean, IsEmpty);
+  ooPropertyGetDeclareD(int, Len);
+  ooString *ooMethodDeclareD(Cat, char *st);
+  ooString *ooMethodDeclareD(Copy, char *st);
+  ooBoolean ooMethodDeclareD(Equal, char *st);
 
 ooClassEndD()
 
