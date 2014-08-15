@@ -8,28 +8,29 @@
 
 #include "ooCollection.h"
 
+
 //Get Iterator
 ooPropertyGetD(ooObj, Iterator) {
 	oCollIterator *i = ooNew(oCollIterator, i, this);
+	ooRaiseIf(!i, Malloc);
+
 	return(i);
 }
 //Add element
-ooBoolean ooMethodD( Add, void *o) {
+ooCollection *ooMethodD( Add, void *o) {
 	if (!this->arr || this->count + 1 > this->len) {
 		void *new = realloc(this->arr, (this->len+10) * sizeof(void*));
-		if (!new) {
-			return(ooFalse);
-		}
+		ooRaiseIf(!new, Malloc);
 		this->len += 10;
 		this->arr = new;
 	}
 	this->arr[this->count] = o;
 	this->count++;
 
-	return(ooTrue);
+	return(this);
 }
 //Remove element
-ooBoolean ooMethodD( Remove, void *o) {
+ooBoolean ooMethodD(Remove, void *o) {
 	int f, g, found=-1;
 	if (!this->count) {
 		return(ooFalse);
@@ -80,9 +81,9 @@ ooDtorD() {
 //Has next element?
 ooPropertyGet(oCollIterator, ooBoolean, HasNext) {
 	if (!this->coll) {
-		return ooFalse;
+		return(ooFalse);
 	}
-	return this->idxCurrent < this->coll->GetCount(this->coll);
+	return(this->idxCurrent < this->coll->GetCount(this->coll));
 }
 //Get Next Element
 ooPropertyGet(oCollIterator, void *, Next) {
