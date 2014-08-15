@@ -10,6 +10,8 @@
 
 #include "ooSimple.h"
 
+ooExcepUse();
+
 /**
  * Generic collection storage
  */
@@ -20,7 +22,7 @@ ooClassD
 	void **arr;
 	int count;
 	int len;
-ooClassEndD()
+ooClassEndD
 
 ooCtorD();
 ooDtorD();
