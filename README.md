@@ -289,7 +289,7 @@ int main() {
 
 ```
 Example Result:
-
+```
 a/b:1
 ERROR b can't be zero
 ERROR-------------
@@ -298,7 +298,7 @@ ERROR-------------
    Function: makediv
    Line: 79
    Description: Zero Division
-
+```
 
 ###References
 * [book] (http://www.cs.rit.edu/~ats/books/ooc.pdf)
