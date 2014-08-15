@@ -41,6 +41,7 @@ ooBoolean ooMethodD(Remove, void *o) {
 			break;
 		}
 	}
+	
 	if (found>=0) {
 		for (g = f+1; g < this->count; g++) {
 			this->arr[g-1] = this->arr[g];
