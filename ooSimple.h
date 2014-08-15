@@ -13,6 +13,8 @@
 
 #include <string.h> //memset, strcmp, memcpy
 #include <stdlib.h> //malloc, free
+#include <setjmp.h> //error handling
+#include <stdio.h> //stderr
 
 //http://stackoverflow.com/questions/1489932/c-preprocessor-and-concatenation
 //#define REFERENCE(x) x
@@ -56,7 +58,7 @@
 #define ooClassEnd(_class) \
 		__ooObjectBase(_class)\
 	};
-#define ooClassEndD() ooClassEnd(_ooClass)
+#define ooClassEndD ooClassEnd(_ooClass)
 
 //initialization
 #define __ooInit(_class, _obj, _nameDestruct, _nameNew, _params...) \
@@ -120,6 +122,7 @@
 
 //Destruccion
 #define ooDelete(_obj) if ((_obj) && (_obj)->destroy) { (_obj)->destroy((_obj)); } //object destruction call
+#define ooDeleteStatic(_obj) if ((_obj).destroy) { (_obj).destroy((&_obj)); } //object destruction call static object
 #define ooDeleteFree(_obj) ooDelete(_obj); free(_obj); _obj=NULL //object destruction call and free mem
 
 //setters and getters properties -----------------------------------
@@ -305,7 +308,7 @@
 #define ooImpAgregator(_class, _classAgregatorFrom) \
 		ooPropertyGetDeclare(_class, ooObj, Iterator);\
 		ooPropertyGetDeclare(_class, int, Count);\
-		ooBoolean ooMethodDeclare(_class, Add, _classAgregatorFrom *obj);\
+		_class *ooMethodDeclare(_class, Add, _classAgregatorFrom *obj);\
 		ooBoolean ooMethodDeclare(_class, Remove, _classAgregatorFrom *obj);\
 		_classAgregatorFrom *ooMethodDeclare(_class, Index, int idx);
 #define ooImpAgregatorD(_classAgregatorFrom) ooImpAgregator(_ooClass, _classAgregatorFrom)
@@ -333,5 +336,150 @@
 	ooMethodInit(_class, Deserialize);
 #define ooSerializableD() ooSerializable(_ooClass)
 
+
+// ERROR HANDLING ----------------------------------------
+
+/**
+ * One jump buf environment for the stack.
+ */
+struct _ooExcepEnvStack {
+	jmp_buf env;
+	struct _ooExcepEnvStack *next;
+};
+
+/**
+ * An error.
+ */
+typedef struct ooExcepError {
+	int no; //setjmp error number
+	const char *id; //error ID
+	const char *function; //function caller
+	const char *file; //file (program.c)
+	int line; //line number in the file
+	const char *desc; //A user description error.
+} ooExcepError;
+
+//reentrant versions: postfix "R"
+
+
+/**
+ * Exception environment
+ */
+struct ooExcepEnv {
+	struct _ooExcepEnvStack *stack; //list of jumps, can be null.
+	ooExcepError lastError; //last error raised
+	void (*unhandled)(ooExcepError *e); //unhandled manager function (can be null)
+};
+
+#define __ooErrName(_id)  __evaluator(__ooErrDecl, _id)
+
+#define __ooExcepEnvSize() sizeof(struct ooExcepEnv)
+#define __ooExcepEnvStackSize() sizeof(struct _ooExcepEnvStack)
+//obtains the first environment from the stack (or the env from init for unhandled call).
+//#define __ooSetjmpEnv(_env) ((_env)->stack? (_env)->stack->env : (_env)->env)
+#define __ooSetjmpEnv(_env) ((_env)->stack->env)
+
+//push a new environment to the stack
+#define __ooTmpStackName()  __evaluator(_st_, __LINE__)
+#define __ooPushExcep(_env) \
+		static struct _ooExcepEnvStack __ooTmpStackName(); \
+		__ooTmpStackName().next = (_env)->stack;\
+		(_env)->stack = &__ooTmpStackName();
+#define __ooPopExcep(_env) \
+			(_env)->stack = (_env)->stack->next
+#define __Jmp(_env, _error) longjmp(__ooSetjmpEnv(_env), _error.no)
+
+#define __ooExcepInitR(_env, _unhandledfunc)  \
+		static struct _ooExcepEnvStack __ooTmpStackName(); \
+		__ooTmpStackName().next = NULL; \
+		memset(_env, 0, __ooExcepEnvSize()); \
+		(_env)->stack = &__ooTmpStackName();\
+		(_env)->unhandled = _unhandledfunc;\
+		if (setjmp(__ooTmpStackName().env)!=0) { \
+			if ((_env)->unhandled) {\
+				(_env)->unhandled(&(_env)->lastError);\
+			}\
+			return ((_env)->lastError.no);\
+		}
+
+
+#define ooExcepDefineR(_env) struct ooExcepEnv *_env
+#define ooExcepUseR(_env) extern ooExcepDefineR(_env)
+
+#define __ooRaiseR(_env, _error) \
+		memcpy(&(_env)->lastError, &_error, sizeof(struct ooExcepError));\
+		(_env)->lastError.file = __FILE__; \
+		(_env)->lastError.line = __LINE__; \
+		(_env)->lastError.function = __func__; \
+		__Jmp(_env, (_env)->lastError)
+
+//show a message to stderr before raise.
+#define __ooRaiseMsgR(_env, _error, _msg, _rest...) \
+		fprintf(stderr, _msg, ##_rest); __ooRaiseR(_env, _error)
+
+#define ooRaiseMsgR(_env, _errname, _msg, _rest...) __ooRaiseMsgR(_env, __ooErrName(_errname), _msg,  ##_rest)
+#define ooRaiseMsgIfR(_env, _cond, _errname, _msg, _rest...) if (_cond) {__ooRaiseMsgR(_env, __ooErrName(_errname), _msg,  ##_rest);}
+#define ooRaiseMsgAnotherR(_env, _error, _msg, _rest...) __ooPopExcep(_env); __ooRaiseMsgR(_env, _error, _msg,  ##_rest)
+
+#define ooRaiseR(_env, _errname) __ooRaiseR(_env, __ooErrName(_errname))
+#define ooRaiseIfR(_env, _cond, _errname) if (_cond) {__ooRaiseR(_env, __ooErrName(_errname));}
+#define ooRaiseAnotherR(_env, _error) __ooPopExcep(_env); __ooRaiseR(_env, _error)
+
+//#define ooRaiseThrowR(_env) ooRaiseAnotherR(_env, (_env)->lastError)
+#define ooRaiseThrowR(_env) __ooPopExcep(_env); __Jmp(_env, (_env)->lastError)
+
+#define ooTryR(_env) { __ooPushExcep(_env);  \
+	int _ooerrno = setjmp((_env)->stack->env); \
+	char _oocatch = 0;\
+	if (!_ooerrno)
+#define ooTryEndR(_env)  \
+	__ooPopExcep(_env); \
+	if (!_oocatch && _ooerrno) {\
+		__Jmp(_env, (_env)->lastError);\
+	}\
+	}
+//#define ooTryEndR(_env)  __ooPopExcep(_env); _ooerrno=0;}
+#define ooCatchR(_errname) if (_ooerrno == __ooErrName(_errname).no? _oocatch=1 : 0)
+#define ooCatchAnyR() if (_ooerrno? _oocatch=1 : 0)
+#define ooExcepInitR(_env, _unhandledfunc) _env = malloc(__ooExcepEnvSize()); __ooExcepInitR(_env)
+#define ooLastErrorR(_env) ((_env)->lastError)
+
+//Non reentrant functions (using ooExcep struct):
+
+//Define error manager in the main program:
+#define ooExcepDefine() struct ooExcepEnv ooExcep
+//Use the error manager in others programs
+#define ooExcepUse() extern ooExcepDefine()
+//Initialize the error manager (usually in main())
+#define ooExcepInit(_unhandledfunc) __ooExcepInitR(&ooExcep, _unhandledfunc)
+
+//Try / Catch
+#define ooTry ooTryR(&ooExcep)
+#define ooTryEnd  ooTryEndR(&ooExcep)
+#define ooCatch(_err) ooCatchR(_err)
+#define ooCatchAny() ooCatchAnyR()
+//Last error number raiced
+#define ooErrNo() (_ooerrno)
+//Last &ooExcepError
+#define ooLastError() ooLastErrorR(&ooExcep)
+
+#define ooRaiseMsg(_errname, _msg, _rest...) ooRaiseMsgR(&ooExcep, _errname, _msg,  ##_rest)
+#define ooRaiseMsgIf(_cond, _errname, _msg, _rest...)  ooRaiseMsgIfR(&ooExcep, _cond, _errname, _msg,  ##_rest)
+#define ooRaiseMsgAnother(_errname, _msg, _rest...) ooRaiseMsgAnotherR(&ooExcep, __ooErrName(_errname), _msg,  ##_rest)
+
+#define ooRaise(_errname) ooRaiseR(&ooExcep, _errname)
+#define ooRaiseIf(_cond, _errname)  ooRaiseIfR(&ooExcep, _cond, _errname)
+//Raise a different error inside the try/catch block to the function caller.
+#define ooRaiseAnother(_errname) ooRaiseAnotherR(&ooExcep, __ooErrName(_errname))
+
+//Raise the same error inside the try/catch block to the function caller.
+#define ooRaiseThrow() ooRaiseThrowR(&ooExcep)
+
+//Declare an error
+#define ooExcepDeclareError(_err, _no, _desc) static const ooExcepError __ooErrName(_err) = { _no, #_err, "Undefined", "Undefined", 0, _desc}
+
+//Common error declarations:
+ooExcepDeclareError(Malloc, -1, "Out of Memory");
+ooExcepDeclareError(InvIndex, -2, "Invalid Index");
 
 #endif /* OOSIMPLE_H_ */
