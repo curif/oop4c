@@ -288,6 +288,16 @@ int main() {
 }
 
 ```
+Example Result:
+
+a/b:1
+ERROR b can't be zero
+ERROR-------------
+   Number: -1 id:DivByZero 
+   Program: ooErrorTest.c
+   Function: makediv
+   Line: 79
+   Description: Zero Division
 
 
 ###References
