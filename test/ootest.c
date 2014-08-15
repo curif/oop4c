@@ -10,6 +10,9 @@
 
 #include "ootest.h"
 
+ooExcepDefine();
+
+
 ooPropertyGetD(int, x) {
 	return this->x;
 }
@@ -134,18 +137,16 @@ ooDtor(punto3d) {
 /**
  * Add a punto to collection.
  */
-ooBoolean ooMethod(puntoColl, Add, punto *p) {
+puntoColl *ooMethod(puntoColl, Add, punto *p) {
 	if (!this->arr || this->count + 1 > this->len) {
 		void *new = realloc(this->arr, (this->len + 10) * sizeof(punto*));
-		if (!new) {
-			return ooFalse;
-		}
+		ooRaiseIf(!new, Malloc);
 		this->len += 10;
 		this->arr = new;
 	}
 	this->arr[this->count] = p;
 	this->count++;
-	return ooTrue;
+	return(this);
 }
 /**
  * Add a punto from collection
@@ -153,7 +154,7 @@ ooBoolean ooMethod(puntoColl, Add, punto *p) {
 ooBoolean ooMethod(puntoColl, Remove, punto *p) {
 	int f, g, found=-1;
 	if (!this->count) {
-		return;
+		return(ooFalse);
 	}
 	for (f=0; f<this->count; f++) {
 		if (p == this->arr[f]) {
@@ -168,8 +169,9 @@ ooBoolean ooMethod(puntoColl, Remove, punto *p) {
 		this->arr[this->count-1]=NULL;
 		this->count--;
 	}
-	return found>=0;
+	return(found>=0);
 }
+
 /**
  * Get an iterator.
  */
@@ -239,6 +241,28 @@ ooDtor(puntoIter) {
 	return;
 }
 
+
+void printError(struct ooExcepError *e) {
+	printf("ERROR-------------\n");
+	printf("   Number: %i id:%s \n", e->no, e->id);
+	printf("   Program: %s\n", e->file);
+	printf("   Function: %s\n", e->function);
+	printf("   Line: %i\n", e->line);
+	printf("   Description: %s\n", e->desc);
+	return;
+}
+
+
+/**
+ * This function will be called when
+ * an unhandled exception raises.
+ */
+void unhandled(struct ooExcepError *e) {
+	printf("Unhandled exception\n");
+	printError(&ooLastError());
+	return;
+}
+
 int main() {
 	punto3d *p;
 	punto3d pCopied;
@@ -248,6 +272,8 @@ int main() {
 	puntoColl *pc;
 	puntoIter *i;
 	char st[50];
+
+	ooExcepInit(&unhandled);
 
 	printf("----------------------------------------------\n");
 	printf("oop4c test example\n");
@@ -422,34 +448,40 @@ int main() {
 	ooDelete(&pCopied);
 	printf("Objects destroyed\n");
 
-	//TEST collections and iterators
-	printf("TEST collections \n");
-	pc = ooNew(puntoColl, pc); //Create collection
-	//load 20 items
-	for (f=0; f<20; f++) {
-		pu = ooNew(punto, pu, f, 0);
-		pc->Add(pc, pu);
-		printf("Add %i to collection, count:%i\n", f, pc->GetCount(pc));
-	}
+	ooTry {
+		//TEST collections and iterators
+		printf("TEST collections \n");
+		pc = ooNew(puntoColl, pc); //Create collection
+		//load 20 items
+		for (f=0; f<20; f++) {
+			pu = ooNew(punto, pu, f, 0);
+			pc->Add(pc, pu);
+			printf("Add %i to collection, count:%i\n", f, pc->GetCount(pc));
+		}
 
-	//iterate collection
-	printf("Iteration\n");
-	ooIterForEach(i,  pc) {
-		pu = i->GetCurrent(i);
-		printf("Member %i ok\n", pu->Getx(pu));
-	}
-	ooDeleteFree(i); //remember to destroy iterator.
+		//iterate collection
+		printf("Iteration\n");
+		ooIterForEach(i,  pc) {
+			pu = i->GetCurrent(i);
+			printf("Member %i ok\n", pu->Getx(pu));
+		}
+		ooDeleteFree(i); //remember to destroy iterator.
 
-	//Delete all members
-	printf("Delete collection:\n");
-	while (pc->GetCount(pc)) {
-		pu = pc->Index(pc, 0); //Obtain object in position 0.
-		printf("Delete member:%i\n", pu->Getx(pu));
-		pc->Remove(pc, pu); //Remove from the collection
-		ooDeleteFree(pu); //Destroy object
+		//Delete all members
+		printf("Delete collection:\n");
+		while (pc->GetCount(pc)) {
+			pu = pc->Index(pc, 0); //Obtain object in position 0.
+			printf("Delete member:%i\n", pu->Getx(pu));
+			pc->Remove(pc, pu); //Remove from the collection
+			ooDeleteFree(pu); //Destroy object
+		}
+		printf("Actual collection members:%i\n", pc->GetCount(pc));
+		ooDeleteFree(pc);
 	}
-	printf("Actual collection members:%i\n", pc->GetCount(pc));
-	ooDeleteFree(pc);
+	ooCatchAny() {
+		printError(&ooLastError());
+	}
+	ooTryEnd;
 
 	return EXIT_SUCCESS;
 }
