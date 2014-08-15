@@ -1,13 +1,18 @@
 oop4c
 =====
-A header only oop toolkit for C, with easy common implementation patterns.
-
+A header only oop toolkit for C, with easy common implementation patterns and exception handling.
 
 ###Description
 Add Object Oriented Programming to a C program using just one include.
 This is a structure based, all preprocesor macro (ab)use implementation and without vtables solution.
 
-####Basic pattern implementation
+####Characteristics
+
+ * One include, fewer dependencies, no libraries, no objects.
+ * Exception handling: try/catch, etc.
+ * Basic pattern implementation: permits to add methods to handle the most commond patterns.
+
+###Basic pattern implementation
 To add basic pattern functionality to a class:
 
  * Copyable: Make the class copiable
@@ -25,7 +30,7 @@ Check ootest.c and ootest.h for more information.
 ###Use
 Add ```#include "ooSimple.h"``` to your C program and you are ready.
 
-###Example: class ooString 
+####Example: class ooString 
 
 ooString.h:
 ```
@@ -178,7 +183,7 @@ int main() {
 
 ```
 
-###As alternative you can use a shorter form, just declare the _ooClass macro, add a "D" in every function macro:
+####As alternative you can use a shorter form, just declare the _ooClass macro, add a "D" in every function macro:
 
 ooString.h:
 ``` 
@@ -194,7 +199,7 @@ ooString.h:
 //Declare class ooString
 #undef _ooClass
 #define _ooClass ooString
-ooClassD()
+ooClassD
 
   char *st;
   int len;
@@ -206,7 +211,7 @@ ooClassD()
   ooString *ooMethodDeclareD(Copy, char *st);
   ooBoolean ooMethodDeclareD(Equal, char *st);
 
-ooClassEndD()
+ooClassEndD
 
 //Declare constructor and destuctor.
 ooCtor(ooString, char *st);
@@ -214,6 +219,76 @@ ooDtor(ooString);
 
 #endif /* OOSTRING_H_ */
 ```
+###Exception handling example
+```
+
+#include <stdlib.h>
+#include <stdio.h>
+
+#include "ooSimple.h"
+
+ooExcepDefine(); //define the exception handling environment.
+
+//Declare exceptions:
+ooExcepDeclareError(DivByZero, -1, "Zero Division");
+
+//A function to print error messages:
+void printError(struct ooExcepError *e) {
+	fprintf(stderr, "ERROR-------------\n");
+	fprintf(stderr, "   Number: %i id:%s \n", e->no, e->id);
+	fprintf(stderr, "   Program: %s\n", e->file);
+	fprintf(stderr, "   Function: %s\n", e->function);
+	fprintf(stderr, "   Line: %i\n", e->line);
+	fprintf(stderr, "   Description: %s\n", e->desc);
+	return;
+}
+
+/**
+ * This function will be called when
+ * an unhandled exception raises.
+ */
+void unhandled(struct ooExcepError* e) {
+	printf("Unhandled ERROR: \n");
+	printError(e);
+	return;
+}
+
+//This function will raise a DivByZero when b is zero.
+int makediv(int a, int b) {
+  ooRaiseIf(!b, DivByZero);
+  return(a/b);
+}
+
+int main() {
+  int a,b;
+  
+  //Initialize the exception environment.
+  ooExcepInit(&unhandled);
+  
+  //Try/catch
+  ooTry {
+    a=1;
+    b=1;
+    printf("a/b:%i\n", makediv(a,b));
+    b=0;
+    printf("a/b:%i\n", makediv(a,b)); //error here.
+    printf("END\n"); // <--- never happen
+  }
+  ooCatch(DivByZero) {
+    //Catch DivByZero
+    printf("ERROR b can't be zero\n");
+  }
+  ooCatchAny() {
+    //catch any error (DivByZero too):
+    printError(&ooLastError());
+  }
+  ooTryEnd
+  
+  printf("end\n");
+}
+
+```
+
 
 ###References
 * [book] (http://www.cs.rit.edu/~ats/books/ooc.pdf)
