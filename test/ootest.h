@@ -10,6 +10,7 @@
 
 #include "ooSimple.h"
 
+
 #undef _ooClass
 #define _ooClass punto
 
@@ -29,7 +30,7 @@ ooPropertyDeclareD(int, y);
 //methods
 int ooMethodDeclareD(sum);
 
-ooClassEndD()
+ooClassEndD
 
 //punto3d definition, subclass of punto
 ooClassH(punto3d, punto)
