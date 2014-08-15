@@ -90,7 +90,14 @@ ooString *ooMethod(ooString, Copy, char *st) {
 	return this;
 }
 
+int ooMethod(ooString, compare, ooString *with) {
+	return(strcmp(this->st, with->st));
+}
+
 ooCtor(ooString, char *st) {
+
+	ooTypeable(ooString);
+	ooComparable(ooString, compare);
 
 	ooMethodInit(ooString, Copy);
 	ooMethodInit(ooString, Cat);
@@ -100,7 +107,6 @@ ooCtor(ooString, char *st) {
 	ooMethodInit(ooString, Clean);
 	ooPropertyGetInit(ooString, IsEmpty);
 	ooPropertyGetInit(ooString, Len);
-	ooTypeable(ooString);
 
 	this->Copy(this, st);
 
