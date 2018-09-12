@@ -2,17 +2,17 @@ oop4c
 =====
 A header only oop toolkit for C, with easy common implementation patterns and exception handling.
 
-###Description
+### Description
 Add Object Oriented Programming to a C program using just one include.
 This is a structure based, all preprocesor macro (ab)use implementation and without vtables solution.
 
-####Characteristics
+#### Characteristics
 
  * One include, fewer dependencies, no libraries, no objects.
  * Exception handling: try/catch, etc.
  * Basic pattern implementation: permits to add methods to handle the most commond patterns.
 
-###Basic pattern implementation
+### Basic pattern implementation
 To add basic pattern functionality to a class:
 
  * Copyable: Make the class copiable
@@ -27,10 +27,10 @@ To add basic pattern functionality to a class:
  
 Check ootest.c and ootest.h for more information. 
 
-###Use
+### Use
 Add ```#include "ooSimple.h"``` to your C program and you are ready.
 
-####Example: class ooString 
+#### Example: class ooString
 
 ooString.h:
 ```
@@ -183,7 +183,7 @@ int main() {
 
 ```
 
-####As alternative you can use a shorter form, just declare the _ooClass macro, add a "D" in every function macro:
+#### As alternative you can use a shorter form, just declare the _ooClass macro, add a "D" in every function macro:
 
 ooString.h:
 ``` 
@@ -219,7 +219,7 @@ ooDtor(ooString);
 
 #endif /* OOSTRING_H_ */
 ```
-###Exception handling example
+### Exception handling example
 ```
 
 #include <stdlib.h>
@@ -300,7 +300,7 @@ ERROR-------------
    Description: Zero Division
 ```
 
-###References
+### References
 * [book] (http://www.cs.rit.edu/~ats/books/ooc.pdf)
 * [stackoverflow: Can you write object oriented code in C?] (http://stackoverflow.com/questions/415452/object-orientation-in-c)
 * [stackoverflow: Object-Orientation in C] (http://stackoverflow.com/questions/415452/object-orientation-in-c)
