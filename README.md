@@ -24,8 +24,8 @@ To add basic pattern functionality to a class:
  * Iterator: Implement iterator pattern.
  * Stringable: Implements ToString method
  * Serializable: Implements the Serializable pattern
- 
-Check ootest.c and ootest.h for more information. 
+
+Check ootest.c and ootest.h for more information.
 
 ### Use
 Add ```#include "ooSimple.h"``` to your C program and you are ready.
@@ -70,7 +70,7 @@ ooDtor(ooString);
 
 #endif /* OOSTRING_H_ */
 ```
-ooString.c 
+ooString.c
 ```
 #include "ooString.h"
 
@@ -88,10 +88,10 @@ ooString *ooMethod(ooString, Cat, char *st) {
       if (new) {
         this->st = new;
         strcpy(this->st + this->len, st);
-	      this->len += l;
+               this->len += l;
       }
     }
-  } 
+  }
   return this;
 }
 
@@ -127,12 +127,12 @@ ooCtor(ooString, char *st) {
   //Initialize properties
   ooPropertyGetInit(ooString, IsEmpty);
   ooPropertyGetInit(ooString, Len);
-  //Initialize Typeable 
+  // Initialize Typeable
   ooTypeable(ooString);
 
   //copy the initial value
   this->Copy(this, st);
-  
+
   return;
 }
 
@@ -186,7 +186,7 @@ int main() {
 #### As alternative you can use a shorter form, just declare the _ooClass macro, add a "D" in every function macro:
 
 ooString.h:
-``` 
+```
 #ifndef OOSTRING_H_
 #define OOSTRING_H_
 
