@@ -2,15 +2,21 @@ CC ?= gcc
 
 default: all
 
-all: ooStringTest ootest
+all: ooErrorTest ooStringTest ootest
 
-ooCollection.o: ../ooCollection.c ../ooCollection.h
+ooCollection.o: ../ooCollection.c ../ooCollection.h ../ooSimple.h
 	$(CC) -c -o $@ $<
 
-ooString.o: ../ooString.c ../ooString.h
+ooString.o: ../ooString.c ../ooString.h ../ooSimple.h
 	$(CC) -c -o $@ $<
 
-ooStringTest.o: ooStringTest.c ../ooString.h ../ooCollection.h
+ooErrorTest.o: ooErrorTest.c ../ooSimple.h
+	$(CC) -c -o $@ $<
+
+ooErrorTest: ooErrorTest.o
+	$(CC) -o $@ $^
+
+ooStringTest.o: ooStringTest.c ../ooString.h ../ooCollection.h ../ooSimple.h
 	$(CC) -c -o $@ $<
 
 ooStringTest: ooStringTest.o ooString.o ooCollection.o
@@ -20,6 +26,6 @@ ootest: ootest.c ootest.h ../ooSimple.h
 	$(CC) -o $@ $<
 
 clean:
-	rm -f ooStringTest.o ooStringTest ootest
+	rm -f ooCollection.o ooString.o ooErrorTest ooErrorTest.o ooStringTest ooStringTest.o ootest
 
 .PHONY: all clean default

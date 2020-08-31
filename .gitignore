@@ -1,5 +1,7 @@
 test/ooCollection.o
+test/ooErrorTest
+test/ooErrorTest.o
 test/ooString.o
-test/ooStringTest.o
 test/ooStringTest
+test/ooStringTest.o
 test/ootest
