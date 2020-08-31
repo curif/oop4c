@@ -76,8 +76,8 @@ void fun1() {
 
 //This function will raise a DivByZero when b is zero.
 int makediv(int a, int b) {
-  ooRaiseIf(!b, DivByZero);
-  return(a/b);
+	ooRaiseIf(!b, DivByZero);
+	return(a / b);
 }
 
 int main() {
@@ -116,24 +116,24 @@ int main() {
 	printf("main ok, try finalized.\n");
 
 
-  //Try/catch
-  ooTry {
-    a=1;
-    b=1;
-    printf("a/b:%i\n", makediv(a,b));
-    b=0;
-    printf("a/b:%i\n", makediv(a,b)); //error here.
-    printf("END\n"); // <--- never happen
-  }
-  ooCatch(DivByZero) {
-    //Catch DivByZero
-    printf("ERROR b can't be zero\n");
-  }
-  ooCatchAny() {
-    //catch any error (DivByZero too):
-    printError(&ooLastError());
-  }
-  ooTryEnd
+	// Try/catch
+	ooTry {
+		a = 1;
+		b = 1;
+		printf("a/b:%i\n", makediv(a, b));
+		b = 0;
+		printf("a/b:%i\n", makediv(a, b)); // error here.
+		printf("END\n"); // <--- never happen
+	}
+	ooCatch(DivByZero) {
+		// Catch DivByZero
+		printf("ERROR b can't be zero\n");
+	}
+	ooCatchAny() {
+		// catch any error (DivByZero too):
+		printError(&ooLastError());
+	}
+	ooTryEnd
 
 
 	printf("At last, force to Raise an unhandled exception\n");
