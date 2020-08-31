@@ -33,7 +33,7 @@ Add ```#include "ooSimple.h"``` to your C program and you are ready.
 #### Example: class ooString
 
 ooString.h:
-```
+```C
 #ifndef OOSTRING_H_
 #define OOSTRING_H_
 
@@ -64,14 +64,14 @@ ooClass(ooString)
 //End Class
 ooClassEnd(ooString)
 
-//Declare constructor and destuctor.
+// Declare constructor and destructor.
 ooCtor(ooString, char *st);
 ooDtor(ooString);
 
 #endif /* OOSTRING_H_ */
 ```
 ooString.c
-```
+```C
 #include "ooString.h"
 
 ooPropertyGet(ooString, int, Len) {
@@ -147,7 +147,7 @@ ooDtor(ooString) {
 ```
 
 ooStringTest.c
-```
+```C
 
 #include <stdio.h>
 #include "ooString.h"
@@ -186,7 +186,7 @@ int main() {
 #### As alternative you can use a shorter form, just declare the _ooClass macro, add a "D" in every function macro:
 
 ooString.h:
-```
+```C
 #ifndef OOSTRING_H_
 #define OOSTRING_H_
 
@@ -213,14 +213,14 @@ ooClassD
 
 ooClassEndD
 
-//Declare constructor and destuctor.
+// Declare constructor and destructor.
 ooCtor(ooString, char *st);
 ooDtor(ooString);
 
 #endif /* OOSTRING_H_ */
 ```
 ### Exception handling example
-```
+```C
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -261,10 +261,10 @@ int makediv(int a, int b) {
 
 int main() {
   int a,b;
-  
+
   //Initialize the exception environment.
   ooExcepInit(&unhandled);
-  
+
   //Try/catch
   ooTry {
     a=1;
@@ -283,7 +283,7 @@ int main() {
     printError(&ooLastError());
   }
   ooTryEnd
-  
+
   printf("end\n");
 }
 
@@ -293,7 +293,7 @@ Example Result:
 a/b:1
 ERROR b can't be zero
 ERROR-------------
-   Number: -1 id:DivByZero 
+   Number: -1 id:DivByZero
    Program: ooErrorTest.c
    Function: makediv
    Line: 79
