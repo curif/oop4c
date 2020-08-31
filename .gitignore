@@ -1,1 +1,5 @@
+test/ooCollection.o
+test/ooString.o
+test/ooStringTest.o
+test/ooStringTest
 test/ootest
