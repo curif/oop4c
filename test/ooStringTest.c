@@ -6,8 +6,8 @@
  */
 
 #include <stdio.h>
-#include "ooString.h"
-#include "ooCollection.h"
+#include "../ooString.h"
+#include "../ooCollection.h"
 
 ooExcepDefine();
 

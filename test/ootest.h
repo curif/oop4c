@@ -8,7 +8,7 @@
 #ifndef OOTEST_H_
 #define OOTEST_H_
 
-#include "ooSimple.h"
+#include "../ooSimple.h"
 
 
 #undef _ooClass

@@ -10,7 +10,7 @@
 #include <stdio.h>
 
 
-#include "ooSimple.h"
+#include "../ooSimple.h"
 
 //Define exception manager
 ooExcepDefine();
