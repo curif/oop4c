@@ -5,3 +5,6 @@ test/ooString.o
 test/ooStringTest
 test/ooStringTest.o
 test/ootest
+
+# Vim stuff
+*.swp
