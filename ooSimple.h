@@ -82,7 +82,7 @@
 		if (_obj) {	__ooInit(_ooClass, _obj, __namedestruct(_ooClass), __namenew(_ooClass), _params);\
 		__namenew(_ooClass)(_obj, ##_params);}
 
-//Declaraciones de constructor y destructor.
+// Constructor and destructor declarations.
 #define ooCtor(_class, _params...) void __namenew(_class)(_class *this, ##_params) //declare constructor
 #define ooCtorD(_params...) void __namenew(_ooClass)(_ooClass *this, ##_params) //declare constructor
 #define ooDtor(_class) void __namedestruct(_class)(_class *this) //declare destructor
@@ -458,7 +458,7 @@ struct ooExcepEnv {
 #define ooTryEnd  ooTryEndR(&ooExcep)
 #define ooCatch(_err) ooCatchR(_err)
 #define ooCatchAny() ooCatchAnyR()
-//Last error number raiced
+// Last error number raised
 #define ooErrNo() (_ooerrno)
 //Last &ooExcepError
 #define ooLastError() ooLastErrorR(&ooExcep)

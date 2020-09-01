@@ -12,16 +12,16 @@
 
 
 #undef _ooClass
-#define _ooClass punto
+#define _ooClass point
 
-//punto definition
+// point definition
 ooClassD
 
 //implements...
 ooImpTypeableD();
 ooImpStringableD();
 
-//properties (define Get & Set - puntoGetx, puntoSetx
+// properties (define Get & Set - pointGetx, pointSetx
 int x;
 int y;
 ooPropertyDeclareD(int, x);
@@ -32,50 +32,50 @@ int ooMethodDeclareD(sum);
 
 ooClassEndD
 
-//punto3d definition, subclass of punto
-ooClassH(punto3d, punto)
+// point3d definition, subclass of point
+ooClassH(point3d, point)
 
 //implements....
-ooImpClonable(punto3d);
-ooImpTypeable(punto3d);
-ooImpCopiable(punto3d);
-ooImpComparable(punto3d);
-ooImpListable(punto3d);
-ooImpStringable(punto3d);
+ooImpClonable(point3d);
+ooImpTypeable(point3d);
+ooImpCopiable(point3d);
+ooImpComparable(point3d);
+ooImpListable(point3d);
+ooImpStringable(point3d);
 
 //properties
 int z;
 //getters & setters
-ooPropertyDeclare(punto3d, int, x);
-ooPropertyDeclare(punto3d, int, y);
-ooPropertyDeclare(punto3d, int, z);
+ooPropertyDeclare(point3d, int, x);
+ooPropertyDeclare(point3d, int, y);
+ooPropertyDeclare(point3d, int, z);
 
-ooClassEnd(punto3d)
+ooClassEnd(point3d)
 
-//collection of punto ---------------------------------------
-ooClass(puntoColl)
+// collection of points ---------------------------------------
+ooClass(pointColl)
 
-ooImpAgregator(puntoColl, punto); //Add, Remove, Index, GetIterator
+ooImpAgregator(pointColl, point); // Add, Remove, Index, GetIterator
 
-punto **arr;
+point * * arr;
 int count;
 int len;
 
-ooClassEnd(puntoColl)
+ooClassEnd(pointColl)
 
-//iterator over puntoColl -----------------
-ooClass(puntoIter)
+// iterator over pointColl -----------------
+ooClass(pointIter)
 
-ooImpIterator(puntoIter, punto);  //Next, HasNext
+ooImpIterator(pointIter, point);  // Next, HasNext
 
-puntoColl *coll;
+pointColl * coll;
 int idxCurrent;
 
-ooClassEnd(puntoIter)
+ooClassEnd(pointIter)
 
-ooCtor(puntoColl);
-ooDtor(puntoColl);
-ooCtor(puntoIter, puntoColl *coll);
-ooDtor(puntoIter);
+ooCtor(pointColl);
+ooDtor(pointColl);
+ooCtor(pointIter, pointColl * coll);
+ooDtor(pointIter);
 
 #endif /* OOTEST_H_ */
