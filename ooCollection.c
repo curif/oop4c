@@ -107,5 +107,6 @@ ooCtor(oCollIterator, ooCollection *coll) {
 }
 
 ooDtor(oCollIterator) {
+	this = 0;
 	return;
 }

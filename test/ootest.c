@@ -50,6 +50,7 @@ ooCtorD(int x, int y) {
 	return;
 }
 ooDtorD() {
+	this = 0;
 	return;
 }
 
@@ -130,6 +131,7 @@ ooCtor(punto3d, int x, int y, int z) {
 	return;
 }
 ooDtor(punto3d) {
+	this = 0;
 	return;
 }
 
@@ -238,6 +240,7 @@ ooCtor(puntoIter, puntoColl *coll) {
 }
 
 ooDtor(puntoIter) {
+	this = 0;
 	return;
 }
 
@@ -260,6 +263,7 @@ void printError(struct ooExcepError *e) {
 void unhandled(struct ooExcepError *e) {
 	printf("Unhandled exception\n");
 	printError(&ooLastError());
+	e = 0;
 	return;
 }
 
