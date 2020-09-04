@@ -120,8 +120,8 @@
 #define ooCallSuper(_obj, _name, _params...) (_obj)->base._name((_obj), ##params)
 #define ooCallSuperS(_obj, _name, _params...) (_obj)->base._name((_obj), ##params)
 
-//Destruccion
-#define ooDelete(_obj) if ((_obj) && (_obj)->destroy) { (_obj)->destroy((_obj)); } //object destruction call
+// Destruction
+#define ooDelete(_obj) if ((_obj != 0) && (_obj)->destroy) { (_obj)->destroy((_obj)); } // object destruction call
 #define ooDeleteStatic(_obj) if ((_obj).destroy) { (_obj).destroy((&_obj)); } //object destruction call static object
 #define ooDeleteFree(_obj) ooDelete(_obj); free(_obj); _obj=NULL //object destruction call and free mem
 
