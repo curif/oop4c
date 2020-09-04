@@ -73,12 +73,14 @@ int main() {
 		col->Add(col, This)->Add(col, is)->Add(col, aTest);
 
 		oCollIterator *i = col->GetIterator(col);
+		oCollIterator * a = i;
 		ooString *elem;
 		ooIterForEach(i,  col) {
 			elem = i->GetCurrent(i);
 			printf("Collection string member: %s\n", elem->st);
 		}
 		ooDeleteFree(i); //remember to destroy iterator.
+		ooDeleteFree(a); // remember to destroy the iterator.
 	}
 	ooCatchAny() {
 		printError(&ooLastError());

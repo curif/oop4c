@@ -427,12 +427,14 @@ int main() {
 	}
 
 	printf("Pop\n");
+	punto3d * l_ = l;
 	ooListPop(l, iter);
 	printf("%i poped\n", iter->Getx(iter));
 	printf("List after Pop\n");
 	ooListForEach(l, iter) {
 		printf("%i in list \n", iter->Getx(iter));
 	}
+	ooDeleteFree(l_);
 	printf("Remove and destroy all\n");
 	while (!ooListIsEmpty(l)) {
 		ooListPop(l, iter);
