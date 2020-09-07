@@ -28,6 +28,7 @@ void printError(struct ooExcepError *e) {
 void unhandled(struct ooExcepError *e) {
 	printf("Unhandled exception\n");
 	printError(&ooLastError());
+	e = 0;
 	return;
 }
 
