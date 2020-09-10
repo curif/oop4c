@@ -53,93 +53,93 @@ ooDtorD() {
 	return;
 }
 
-int ooMethodOverride(punto3d, punto, sum) {
-	ooThisDeclare(punto3d);
+int ooMethodOverride(point3d, point, sum) {
+	ooThisDeclare(point3d);
 	//return this->z + ooBase()->sum(ooBase()); //not possible, recursion.
 	return this->z + base->x + base->y;
 }
 
-ooPropertyGet(punto3d, int, x) {
+ooPropertyGet(point3d, int, x) {
 	return ooBase()->Getx(ooBase());
 }
-ooPropertySet(punto3d, int, x) {
+ooPropertySet(point3d, int, x) {
 	ooBase()->Setx(ooBase(), x);
 	return ;
 }
-ooPropertyGet(punto3d, int, y) {
+ooPropertyGet(point3d, int, y) {
 	return ooBase()->Gety(ooBase());
 }
-ooPropertySet(punto3d, int, y) {
+ooPropertySet(point3d, int, y) {
 	ooBase()->Sety(ooBase(), y);
 	return ;
 }
-ooPropertyGet(punto3d, int, z) {
+ooPropertyGet(point3d, int, z) {
 	return this->z;
 }
-ooPropertySet(punto3d, int, z) {
+ooPropertySet(point3d, int, z) {
 	this->z = z;
 	return;
 }
 
-//Clone a punto3d object.
-punto3d *ooMethod(punto3d, clone) {
-	punto3d *x = (punto3d *)malloc(ooSize(this));
+// Clone a point3d object.
+point3d * ooMethod(point3d, clone) {
+	point3d * x = (point3d *) malloc(ooSize(this));
 	memcpy(x,this,ooSize(this));
 	return x;
 }
 
 //Copy without Z
-void ooMethod(punto3d, copyWithoutZ, punto3d *to) {
+void ooMethod(point3d, copyWithoutZ, point3d * to) {
 	to->base.x = this->base.x;
 	to->base.y = this->base.y;
 	to->z = 0;
 	return;
 }
-int ooMethod(punto3d, compare, punto3d *with) {
+int ooMethod(point3d, compare, point3d * with) {
 	return this->base.x == with->base.x && this->base.y == with->base.y && this->z == with->z;
 }
-char *ooMethod(punto3d, ToString, char *buf, int len) {
-	ooBaseDeclare(punto);
+char * ooMethod(point3d, ToString, char * buf, int len) {
+	ooBaseDeclare(point);
 	char buf2[20];
 	snprintf(buf, len, "%s, %i", base->ToString(base, buf2, 20), this->z);
 	return buf;
 }
-ooCtor(punto3d, int x, int y, int z) {
+ooCtor(point3d, int x, int y, int z) {
 	//parent init.
 	ooInitD(ooBase(), x, y);
 
 	//implementations:
-	ooClonable(punto3d, clone);
-	ooTypeable(punto3d);
-	ooCopiable(punto3d, copyWithoutZ);
-  ooComparable(punto3d, compare);
-  ooListable(punto3d);
-  ooStringable(punto3d);
+	ooClonable(point3d, clone);
+	ooTypeable(point3d);
+	ooCopiable(point3d, copyWithoutZ);
+	ooComparable(point3d, compare);
+	ooListable(point3d);
+	ooStringable(point3d);
 
 	//Initialize Properties
-  ooPropertyInit(punto3d, x);
-  ooPropertyInit(punto3d, y);
-  ooPropertyInit(punto3d, z);
+	ooPropertyInit(point3d, x);
+	ooPropertyInit(point3d, y);
+	ooPropertyInit(point3d, z);
 
 	//Override parent method with its own.
-	ooMethodInitOverride(punto3d, sum);
+	ooMethodInitOverride(point3d, sum);
 
 	//initialization
 	this->Setz(this, z);
 
 	return;
 }
-ooDtor(punto3d) {
+ooDtor(point3d) {
 	return;
 }
 
 //Collection & iterator --------------------------------------
 /**
- * Add a punto to collection.
+ * Add a point to collection.
  */
-puntoColl *ooMethod(puntoColl, Add, punto *p) {
+pointColl * ooMethod(pointColl, Add, point * p) {
 	if (!this->arr || this->count + 1 > this->len) {
-		void *new = realloc(this->arr, (this->len + 10) * sizeof(punto*));
+		void * new = realloc(this->arr, (this->len + 10) * sizeof(point *));
 		ooRaiseIf(!new, Malloc);
 		this->len += 10;
 		this->arr = new;
@@ -149,9 +149,9 @@ puntoColl *ooMethod(puntoColl, Add, punto *p) {
 	return(this);
 }
 /**
- * Add a punto from collection
+ * Add a point from collection
  */
-ooBoolean ooMethod(puntoColl, Remove, punto *p) {
+ooBoolean ooMethod(pointColl, Remove, point * p) {
 	int f, g, found=-1;
 	if (!this->count) {
 		return(ooFalse);
@@ -175,21 +175,21 @@ ooBoolean ooMethod(puntoColl, Remove, punto *p) {
 /**
  * Get an iterator.
  */
-ooPropertyGet(puntoColl, ooObj, Iterator) {
-	puntoIter *i;
-	i = ooNew(puntoIter, i, this);
+ooPropertyGet(pointColl, ooObj, Iterator) {
+	pointIter * i;
+	i = ooNew(pointIter, i, this);
 	return i;
 }
 /***
  * Count elements
  */
-ooPropertyGet(puntoColl, int, Count) {
+ooPropertyGet(pointColl, int, Count) {
 	return this->count;
 }
 /**
- * Get a punto from collection.
+ * Get a point from collection.
  */
-punto *ooMethod(puntoColl, Index, int idx) {
+point * ooMethod(pointColl, Index, int idx) {
 	if (idx > this->count - 1) {
 		return NULL;
 	}
@@ -198,13 +198,13 @@ punto *ooMethod(puntoColl, Index, int idx) {
 /**
  * Collection constructor
  */
-ooCtor(puntoColl) {
-	ooAgregator(puntoColl);
+ooCtor(pointColl) {
+	ooAgregator(pointColl);
 }
 /**
  * Collection destructor
  */
-ooDtor(puntoColl) {
+ooDtor(pointColl) {
 	if (this->arr) {
 		free(this->arr);
 	}
@@ -213,31 +213,31 @@ ooDtor(puntoColl) {
 
 //Iterator -----------------
 
-ooPropertyGet(puntoIter, ooBoolean, HasNext) {
+ooPropertyGet(pointIter, ooBoolean, HasNext) {
 	if (!this->coll) {
 		return ooFalse;
 	}
 	return this->idxCurrent < this->coll->GetCount(this->coll);
 }
-ooPropertyGet(puntoIter, punto *, Next) {
+ooPropertyGet(pointIter, point *, Next) {
 	if (!this->GetHasNext(this)) {
 		return NULL;
 	}
 	this->idxCurrent++;
 	return this->GetCurrent(this);
 }
-ooPropertyGet(puntoIter, punto *, Current) {
+ooPropertyGet(pointIter, point *, Current) {
 	return this->coll->Index(this->coll, this->idxCurrent);
 }
 
-ooCtor(puntoIter, puntoColl *coll) {
-	ooIterator(puntoIter);
+ooCtor(pointIter, pointColl * coll) {
+	ooIterator(pointIter);
 	if (ooIsAgregable(coll)) {
 		this->coll = coll;
 	}
 }
 
-ooDtor(puntoIter) {
+ooDtor(pointIter) {
 	return;
 }
 
@@ -264,13 +264,13 @@ void unhandled(struct ooExcepError *e) {
 }
 
 int main() {
-	punto3d *p;
-	punto3d pCopied;
-	punto3d *pCloned;
-	punto *pu;
+	point3d * p;
+	point3d pCopied;
+	point3d * pCloned;
+	point * pu;
 	int f;
-	puntoColl *pc;
-	puntoIter *i;
+	pointColl * pc;
+	pointIter * i;
 	char st[50];
 
 	ooExcepInit(&unhandled);
@@ -279,14 +279,14 @@ int main() {
 	printf("oop4c test example\n");
 	printf("----------------------------------------------\n");
 
-	p = ooNew(punto3d, p, 10, 10, 30);
-	printf("p: %i+%i+%i = sum:%i\n", p->base.x, p->base.y, p->z, p->base.sum((punto*)p));
+	p = ooNew(point3d, p, 10, 10, 30);
+	printf("p: %i+%i+%i = sum:%i\n", p->base.x, p->base.y, p->z, p->base.sum((point *) p));
 
 	p->Setx(p,20);
 	p->Sety(p,50);
 	p->Setz(p,100);
 	printf("ToString: %s\n", p->ToString(p, st, 50));
-	printf("%i+%i+%i = sum:%i\n", p->Getx(p), p->Gety(p), p->Getz(p), p->base.sum((punto*)p));
+	printf("%i+%i+%i = sum:%i\n", p->Getx(p), p->Gety(p), p->Getz(p), p->base.sum((point *) p));
 
 	//Clone p
 	if (!ooIsClonable(p)) {
@@ -302,18 +302,19 @@ int main() {
 
 	pCloned->Setz(pCloned,1000);
 	printf("cloned p: %i+%i+%i = sum:%i\n", pCloned->Getx(pCloned), pCloned->Gety(pCloned),
-			pCloned->Getz(pCloned), pCloned->base.sum((punto*)pCloned));
+			pCloned->Getz(pCloned), pCloned->base.sum((point *) pCloned));
 
 	// copy the cloned object over pCopied object.
-	if (ooSize(pCloned) != sizeof(punto3d)) {
-		printf("ERROR sizeof punto3d\n");
+	if (ooSize(pCloned) != sizeof(point3d)) {
+		printf("ERROR sizeof point3d\n");
 		return EXIT_FAILURE;
 	}
 
-	ooInit(punto3d, &pCopied, 0,0,0);
+	ooInit(point3d, & pCopied, 0,0,0);
 	pCloned->copy(pCloned, &pCopied);
 	printf("OK; pCopied\n");
-	printf("pCopied: %i+%i+%i = sum:%i\n", pCopied.Getx(&pCopied), pCopied.Gety(&pCopied), pCopied.Getz(&pCopied), pCopied.base.sum((punto*)&pCopied));
+	printf("pCopied: %i+%i+%i = sum:%i\n", pCopied.Getx(&pCopied), pCopied.Gety(&pCopied), pCopied.Getz(&pCopied),
+			pCopied.base.sum((point *) & pCopied));
 
 	//Compare
 	if (!ooIsComparable(p)) {
@@ -328,8 +329,8 @@ int main() {
 		printf("OK p and pCloned are equals\n");
 	}
 
-	//Polymorphism, cast a punto3d object as class punto
-	pu = (punto*)p;
+	// Polymorphism, cast a point3d object as class point
+	pu = (point *) p;
 	printf("pu: %i+%i = sum:%i\n", pu->x, pu->y, pu->sum(pu));
 	if (pu->sum(pu) != 170) {
 		printf("sum ERROR \n");
@@ -346,23 +347,23 @@ int main() {
 	}
 	printf("Type of p=%s\n", ooType(p));
 	printf("Type of pu=%s\n", ooType(pu));
-	if (!ooTypeOf(pu, punto)) {
-		printf("ERROR pu must by a punto instance.\n");
+	if (!ooTypeOf(pu, point)) {
+		printf("ERROR pu must be a point instance.\n");
 		return EXIT_FAILURE;
 	}
-	if (!ooTypeOf(p, punto3d)) {
-		printf("ERROR p must by a punto3d instance.\n");
+	if (!ooTypeOf(p, point3d)) {
+		printf("ERROR p must be a point3d instance.\n");
 		return EXIT_FAILURE;
 	}
 	printf("OK typeOf\n");
 
 	//list test ---------------------------
-	punto3d *l, *l2;
-	punto3d *iter;
+	point3d * l, * l2;
+	point3d * iter;
 	l = NULL;
 	//add 10 obj to list.
 	for (f=0; f<10; f++) {
-		l2 = ooNew(punto3d, l2, f+1, 0, 0);
+		l2 = ooNew(point3d, l2, f + 1, 0, 0);
 		ooListPush(l, l2);
 	}
 	printf("for each...\n");
@@ -427,7 +428,7 @@ int main() {
 	}
 
 	printf("Pop\n");
-	punto3d * l_ = l;
+	point3d * l_ = l;
 	ooListPop(l, iter);
 	printf("%i poped\n", iter->Getx(iter));
 	printf("List after Pop\n");
@@ -453,10 +454,10 @@ int main() {
 	ooTry {
 		//TEST collections and iterators
 		printf("TEST collections \n");
-		pc = ooNew(puntoColl, pc); //Create collection
+		pc = ooNew(pointColl, pc); // Create collection
 		//load 20 items
 		for (f=0; f<20; f++) {
-			pu = ooNew(punto, pu, f, 0);
+			pu = ooNew(point, pu, f, 0);
 			pc->Add(pc, pu);
 			printf("Add %i to collection, count:%i\n", f, pc->GetCount(pc));
 		}

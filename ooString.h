@@ -17,7 +17,7 @@
 //Use error handling
 ooExcepUse();
 
-//REdefine the stringable implementation to use the ooString class.
+// Redefine the stringable implementation to use the ooString class.
 #undef ooImpStringable
 #define ooImpStringable(_class) ooString *ooMethodDeclare(_class, ToString, ooString *st)
 
